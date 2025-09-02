@@ -6,8 +6,15 @@ print("I'm thinking of a number between 1 and 100.")
 
 while foundTheAnswer is False:
     print("Take a guess...")
-    userGuess = int(input())
-    if userGuess > computersNumber:
+    try:
+        userGuess = int(input())
+    except:
+        print("That's not a valid choice. Try again.")
+        continue
+    
+    if userGuess < 1 or userGuess > 100:
+        print("I said between 1 and 100, try again.")
+    elif userGuess > computersNumber:
         print("Lower...")
     elif userGuess < computersNumber:
         print("Higher...")
