@@ -7,7 +7,7 @@ print("I'm thinking of a number between 1 and 100.")
 while foundTheAnswer is False:
     print("Take a guess...")
     try:
-        userGuess = int(input())
+        userGuess = int(input("\t"))
     except:
         print("That's not a valid choice. Try again.")
         continue
