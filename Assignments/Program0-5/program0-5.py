@@ -29,6 +29,7 @@ def blit_centered(screen, surface, pos):
 pg.init()
 pg.font.init()
 
+# Colors
 WHITE = (255,255,255)
 TRANSPARENT_MAGENTA = (255,0,255)
 BL = (0,0,0)
