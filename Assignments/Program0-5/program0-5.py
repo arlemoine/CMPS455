@@ -20,7 +20,7 @@ def getScaledSprite(spriteArray, scaleFactor):
     return scaledSurf
 
 # Center the drawn image
-def blit_centered(screen, surface, pos):
+def blitCentered(screen, surface, pos):
     centered_x = pos[0] - surface.get_width() / 2
     centered_y = pos[1] - surface.get_height() / 2
     screen.blit(surface, (centered_x, centered_y))
@@ -104,7 +104,7 @@ while running:
     # Set background and fill screen with provided surfaces
     screen.fill(WHITE)
     for surface, pos in surfList:
-        blit_centered(screen, surface, pos)
+        blitCentered(screen, surface, pos)
 
     # Update the display
     pg.display.flip()
