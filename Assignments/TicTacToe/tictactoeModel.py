@@ -185,7 +185,7 @@ class TicTacToe:
 
         return focusDirection, focusIndex
 
-    def startCLI(self):
+    def runCLI(self):
         self.printBoard()
 
         while True:
@@ -199,6 +199,11 @@ class TicTacToe:
                 print("Invalid choice. Select again.")
 
         while self.gameRunning:
+            if self.turnCounter == 9:
+                print("Tie! Game over!")
+                self.printBoard()
+                break
+            
             marker = self.markSpot()
 
             if marker == 1:
@@ -208,19 +213,11 @@ class TicTacToe:
             if marker == 0:
                 self.whosTurn = self.whosTurn * -1
                 self.turnCounter = self.turnCounter + 1
+                print(self.turnCounter)
                 self.printBoard()
-                if marker == -1:
-                    print("Try again.")
-                    if self.turnCounter == 9:
-                        print("Tie! Game over!")
-                        self.printBoard()
-                        break
+            if marker == -1:
+                print("Try again.")
 
 
-
-def main():
-    game = TicTacToe()
-    game.startCLI()
-
-
-main()
+if __name__ == '__main__':
+    main()
