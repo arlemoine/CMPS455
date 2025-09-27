@@ -59,22 +59,26 @@ class TicTacToe:
             return -1
         else:
             return 1
-
-    def markSpot(self):
+        
+    def getInput(self):
         validatedMove = -1
-
         if self.gameMode == 1:
             if self.whosTurn == -1:
                 row, col = self.aiMove()
                 validatedMove = 1
-
         while validatedMove != 1:
-            spot = self.getInput()
+            if self.whosTurn == 1:
+                print("Player 1, make your move: ")
+                spot = input()
+            else:
+                print("Player 2, make your move: ")
+                spot = input(1)
             row, col = self.spotToIndex(spot)
             validatedMove = self.validateChoice(row, col)
+        return self.markSpot(row, col)
 
+    def markSpot(self, row, col):
         self.board[row][col] = self.whosTurn
-
         # Increment sums related to victory conditions
         self.rowSum[row] += self.whosTurn
         self.colSum[col] += self.whosTurn
@@ -82,11 +86,12 @@ class TicTacToe:
             self.diagSum[0] += self.whosTurn
         if row + col == 2:
             self.diagSum[1] += self.whosTurn
+        return self.checkForWinConditional(row, col)
 
+    def checkForWinConditional(self, row, col):
         # Check for win conditions
         winValue = 3 if self.whosTurn == 1 else -3
         winner = "X" if winValue == 3 else "O"
-
         if self.rowSum[row] == winValue:
             print(f"Player {winner} wins!")
             return 1
@@ -101,14 +106,6 @@ class TicTacToe:
             return 1
         else:
             return 0
-
-    def getInput(self):
-        if self.whosTurn == 1:
-            print("Player 1, make your move: ")
-            return input()
-        else:
-            print("Player 2, make your move: ")
-            return input()
 
     def aiMove(self):
         # Obtain list of available spots on self.board
@@ -198,13 +195,8 @@ class TicTacToe:
             except:
                 print("Invalid choice. Select again.")
 
-        while self.gameRunning:
-            if self.turnCounter == 9:
-                print("Tie! Game over!")
-                self.printBoard()
-                break
-            
-            marker = self.markSpot()
+        while self.gameRunning:            
+            marker = self.getInput()
 
             if marker == 1:
                 self.gameRunning = False
@@ -215,9 +207,13 @@ class TicTacToe:
                 self.turnCounter = self.turnCounter + 1
                 print(self.turnCounter)
                 self.printBoard()
+                if self.turnCounter == 9:
+                    print("Tie! Game over!")
+                    break
             if marker == -1:
                 print("Try again.")
 
 
 if __name__ == '__main__':
-    main()
+    game = TicTacToe()
+    game.runCLI()
