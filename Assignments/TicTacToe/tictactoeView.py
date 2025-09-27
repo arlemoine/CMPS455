@@ -1,28 +1,45 @@
-# tictactoeView.py
 import pygame
-from tictactoeModel import TicTacToe # Renamed import: game_logic -> tictactoeModel
+import tictactoeModel
 
 # Define constants
 WINDOWSIZE = 600
 LINECOLOR = (0, 0, 0) # Black
 BACKGROUNDCOLOR = (255, 255, 255) # White
 SQUARESIZE = WINDOWSIZE // 3
+MARKER_SIZE = int(SQUARESIZE * 0.8) # Size for the scaled image
 
 class TicTacToeGUI:
     def __init__(self):
         pygame.init()
         self.screen = pygame.display.set_mode((WINDOWSIZE, WINDOWSIZE))
         pygame.display.set_caption("Pygame Tic-Tac-Toe")
-        self.game = TicTacToe()
-        self.gameRunning = True # Using 'thisCase' convention
+        self.game = tictactoeModel.TicTacToe()
+        self.gameRunning = True 
+        
+        # NEW: Load and scale the background image
+        try:
+            bg_img = pygame.image.load('img/board_art.png').convert()
+            self.background = pygame.transform.scale(bg_img, (WINDOWSIZE, WINDOWSIZE))
+        except pygame.error as e:
+            print(f"Error loading background image: {e}")
+            self.gameRunning = False
+        
+        try:
+            # Load X image and scale it to fit the grid square
+            x_img = pygame.image.load('img/letter_x.png').convert_alpha()
+            self.x_marker = pygame.transform.scale(x_img, (MARKER_SIZE, MARKER_SIZE))
+
+            # Load O image and scale it
+            o_img = pygame.image.load('img/letter_o.png').convert_alpha()
+            self.o_marker = pygame.transform.scale(o_img, (MARKER_SIZE, MARKER_SIZE))
+        except pygame.error as e:
+            print(f"Error loading image: {e}")
+            print("Please ensure 'img/letter_x.png' and 'img/letter_o.png' are available.")
+            self.gameRunning = False
 
     def drawGrid(self): # Using 'thisCase' convention
-        self.screen.fill(BACKGROUNDCOLOR)
-        # Draw vertical and horizontal lines
-        pygame.draw.line(self.screen, LINECOLOR, (SQUARESIZE, 0), (SQUARESIZE, WINDOWSIZE), 5)
-        pygame.draw.line(self.screen, LINECOLOR, (SQUARESIZE * 2, 0), (SQUARESIZE * 2, WINDOWSIZE), 5)
-        pygame.draw.line(self.screen, LINECOLOR, (0, SQUARESIZE), (WINDOWSIZE, SQUARESIZE), 5)
-        pygame.draw.line(self.screen, LINECOLOR, (0, SQUARESIZE * 2), (WINDOWSIZE, SQUARESIZE * 2), 5)
+        # NEW: Draw the background image first
+        self.screen.blit(self.background, (0, 0))
 
     def handleClick(self, pos): # Using 'thisCase' convention
         x, y = pos
@@ -40,23 +57,20 @@ class TicTacToeGUI:
             print("Spot already taken.") 
 
     def drawMarkers(self): # Using 'thisCase' convention
+        offset_margin = SQUARESIZE * 0.1 # Small margin to center the image
         for row in range(3):
             for col in range(3):
-                center_x = col * SQUARESIZE + SQUARESIZE // 2
-                center_y = row * SQUARESIZE + SQUARESIZE // 2
+                # Calculate the top-left corner position for blitting
+                x_pos = col * SQUARESIZE + offset_margin
+                y_pos = row * SQUARESIZE + offset_margin
+                
+                # Player 1 is 'X' (1)
                 if self.game.board[row][col] == 1:
-                    # Draw 'X' 
-                    offset = 50
-                    pygame.draw.line(self.screen, LINECOLOR, 
-                                     (center_x - offset, center_y - offset), 
-                                     (center_x + offset, center_y + offset), 8)
-                    pygame.draw.line(self.screen, LINECOLOR, 
-                                     (center_x + offset, center_y - offset), 
-                                     (center_x - offset, center_y + offset), 8)
+                    self.screen.blit(self.x_marker, (x_pos, y_pos))
+                
+                # Player 2 is 'O' (-1)
                 elif self.game.board[row][col] == -1:
-                    # Draw 'O' 
-                    radius = SQUARESIZE // 3
-                    pygame.draw.circle(self.screen, LINECOLOR, (center_x, center_y), radius, 8)
+                    self.screen.blit(self.o_marker, (x_pos, y_pos))
 
     def runGameLoop(self): 
         while self.gameRunning:
