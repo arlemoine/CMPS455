@@ -1,19 +1,25 @@
 import random
 
 
-class TicTacToe:
+class TicTacToeGame:
     def __init__(self):
         self.board = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
         self.rowSum = [0, 0, 0]
         self.colSum = [0, 0, 0]
         self.diagSum = [0, 0]
         self.gameRunning = True
+        self.gameMode = 0
         self.whosTurn = 1
         self.turnCounter = 0
+        self.gameState = ""
+        self.WINNER = ""
 
     def printBoard(self):
         """
-        Output: TicTacToe self.board to terminal output
+        Print current state of game board to output terminal.
+        
+        :return: None
+        :rtype: None
         """
         print("\n\t|\t1\t|\t2\t|\t3\n--------------------------------------------------------\n", end="")
         for i in range(3):
@@ -32,6 +38,15 @@ class TicTacToe:
         print()
 
     def spotToIndex(self, spot):
+        """
+        Convert player choice for spot chosen into indeces to be used by the program.
+        
+        :param spot: Choice requested by player on game board location in the format of <LETTER><NUMBER> coinciding with row and column of the game board.
+        :type spot: String
+        :raises ValueError: ValueError
+        :return: row and column indeces
+        :rtype: int, int
+        """
         # Validate spot
         try:
             # Check for valid number of characters
@@ -45,11 +60,17 @@ class TicTacToe:
         return row, col
 
     def validateChoice(self, row, col):
-        if self.whosTurn != 1 and self.whosTurn != -1:
-            # Validate X (1) or O (-1) is used
-            print("Invalid choice of X (1) or O (-1).")
-            return -1
-        elif row < 0 or row > 2 or col < 0 or col > 2:
+        """
+        Validate choice of row and column selection.
+        
+        :param row: Targeted row
+        :type row: int
+        :param col: Targeted column
+        :type col: int
+        :return: 1 (valid), -1 (invalid)
+        :rtype: int
+        """
+        if row < 0 or row > 2 or col < 0 or col > 2:
             # Get row and column indeces and validate
             print("Invalid spot entered.")
             return -1
@@ -61,6 +82,12 @@ class TicTacToe:
             return 1
         
     def getInput(self):
+        """
+        Retrieve input from either a human player or AI player and mark a spot on the game board.
+        
+        :return: 0 (no win yet), 1 (winner found)
+        :rtype: int
+        """
         validatedMove = -1
         if self.gameMode == 1:
             if self.whosTurn == -1:
@@ -72,12 +99,22 @@ class TicTacToe:
                 spot = input()
             else:
                 print("Player 2, make your move: ")
-                spot = input(1)
+                spot = input()
             row, col = self.spotToIndex(spot)
             validatedMove = self.validateChoice(row, col)
         return self.markSpot(row, col)
 
     def markSpot(self, row, col):
+        """
+        Mark spot on the game board as taken and increment arrays for row/column/diagonal sums.
+        
+        :param row: Targeted row
+        :type row: int
+        :param col: Targeted column
+        :type col: int
+        :return: 0 (no win yet), 1 (winner found)
+        :rtype: int
+        """        
         self.board[row][col] = self.whosTurn
         # Increment sums related to victory conditions
         self.rowSum[row] += self.whosTurn
@@ -89,9 +126,19 @@ class TicTacToe:
         return self.checkForWinConditional(row, col)
 
     def checkForWinConditional(self, row, col):
+        """
+        Determine if a winner is found, targeting the given row and column as the source for checks.
+        
+        :param row: Target row
+        :type row: int
+        :param col: Target column
+        :type col: int
+        :return: 0 (no win yet), 1 (winner found)
+        :rtype: int
+        """
         # Check for win conditions
         winValue = 3 if self.whosTurn == 1 else -3
-        winner = "X" if winValue == 3 else "O"
+        self.WINNER = "X" if winValue == 3 else "O"
         if self.rowSum[row] == winValue:
             print(f"Player {winner} wins!")
             return 1
@@ -108,6 +155,12 @@ class TicTacToe:
             return 0
 
     def aiMove(self):
+        """
+        Choose a spot on the board for the AI player.
+        
+        :return: row, column chosen by AI
+        :rtype: int, int
+        """
         # Obtain list of available spots on self.board
         freeSpots = []
         for i in range(3):
@@ -140,6 +193,12 @@ class TicTacToe:
         return choice[0], choice[1]
 
     def aiCheck(self):
+        """
+        Determine if a particular spot on the game board should be targeted by the AI's next move to win the game or defend from a loss.
+        
+        :return: focusDirection (row, column, or diagonal), focusIndex
+        :rtype: String, int
+        """
         # Define focus points of the self.board based on game condition
         focusIndexOffense = -1
         focusDirectionOffense = ""
@@ -183,6 +242,13 @@ class TicTacToe:
         return focusDirection, focusIndex
 
     def runCLI(self):
+        """
+        Run the CLI version of the game.
+        
+        :raises ValueError: ValueError
+        :return: None
+        :rtype: None
+        """
         self.printBoard()
 
         while True:
@@ -205,7 +271,6 @@ class TicTacToe:
             if marker == 0:
                 self.whosTurn = self.whosTurn * -1
                 self.turnCounter = self.turnCounter + 1
-                print(self.turnCounter)
                 self.printBoard()
                 if self.turnCounter == 9:
                     print("Tie! Game over!")
@@ -215,5 +280,5 @@ class TicTacToe:
 
 
 if __name__ == '__main__':
-    game = TicTacToe()
+    game = TicTacToeGame()
     game.runCLI()
