@@ -1,11 +1,8 @@
-import tictactoeModel
-import tictactoeView
+import tictactoeController as gameController
 
 
 def main():
-    game = tictactoeModel.TicTacToe()
-    game.runCLI()
+    game = gameController.Controller()
+    game.newGameLoop()
 
-
-if __name__ == '__main__':
-    main()
+main()
