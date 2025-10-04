@@ -17,7 +17,10 @@ ORANGE = (200, 80, 0)
 
 
 class TicTacToeGUI:
+    """Class for GUI."""
+    
     def __init__(self):
+        """GUI init."""
         pg.init()
         self.screen = pg.display.set_mode((WINDOWSIZE, SCREEN_HEIGHT))
         pg.display.set_caption("Tic-Tac-Toe")
@@ -37,7 +40,7 @@ class TicTacToeGUI:
             o_img = pg.image.load('img/letter_o.png').convert_alpha()
             self.o_marker = pg.transform.scale(
                 o_img, (MARKER_SIZE, MARKER_SIZE))
-            # Load, scale, and fit key images
+            # Load, scale, and fit event key images
             key1_png = pg.image.load('img/key_1.png').convert_alpha()
             self.key1_img = pg.transform.scale(
                 key1_png, (KEY_SIZE, KEY_SIZE))
@@ -54,6 +57,7 @@ class TicTacToeGUI:
             print(f"Error loading image: {e}")
             
     def drawStatusBar(self, game, controller):
+        """Draw status bar at the top of the screen, showing scoreboard and current status message."""
         pg.draw.rect(self.screen, (50, 50, 50), (0, 0, WINDOWSIZE, STATUSBAR_HEIGHT))
 
         # Score box
@@ -74,12 +78,12 @@ class TicTacToeGUI:
         self.screen.blit(score2_text, (team2_rect.centerx - score2_text.get_width() // 2, team2_rect.centery - score2_text.get_height() // 2))
 
     def statusMessage(self, message):
+        """Write new status message onto the status bar."""
         messageText = self.FONT.render(message, True, WHITE)
         self.screen.blit(messageText, (WINDOWSIZE - messageText.get_width() - 20, STATUSBAR_HEIGHT // 2 - messageText.get_height() // 2))
 
-
     def drawMenu(self):
-        """Draws the main menu screen."""
+        """Draw the main menu screen."""
         # Background
         pg.draw.rect(self.screen, WHITE, (0, 0, WINDOWSIZE, SCREEN_HEIGHT))
     
@@ -107,7 +111,8 @@ class TicTacToeGUI:
     
         pg.display.flip()
 
-    def drawMarkers(self, game):  # Using 'thisCase' convention
+    def drawMarkers(self, game):
+        """Draw the current status of the game board using 'X' and 'O' markers."""
         offset_margin = SQUARESIZE * 0.1  # Small margin to center the image
         
         for row in range(3):
@@ -125,7 +130,8 @@ class TicTacToeGUI:
                     self.screen.blit(self.o_marker, (x_pos, y_pos))
             
     def render(self, game, controller):
-        # --- Drawing Logic based on State ---
+        """Render the current status of the game screen."""
+        # Drawing Logic based on State
         self.drawStatusBar(game, controller)
         if game.gameState == 1: # MENU
             self.drawMenu()

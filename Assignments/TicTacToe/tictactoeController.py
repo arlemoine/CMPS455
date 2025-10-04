@@ -6,19 +6,23 @@ import time
 
 
 class Controller:
+    """Class for controller."""
+    
     def __init__(self, name: str = "Default"):
+        """Init controller."""
         self.name = name
         self.scores = [0, 0]
         self.controllerRunning = True
         self.gameMode = 0
-        
+            
     def takeTurn(self, gameModel, row, col):
+        """Allow current player to take turn."""
         validChoice = gameModel.validateChoice(row, col)
         if validChoice == 1:
-            # markSpot now returns 0 (continue), 1 (win), or 2 (tie)
+            # markSpot returns 0 (continue), 1 (win), or 2 (tie)
             gameModel.markSpot(row, col)
             gameStatus = gameModel.winCheck(row, col)
-            print(f"gameStatus: {gameStatus}")
+            # print(f"gameStatus: {gameStatus}")
             if gameStatus == 1 or gameStatus == 2: # Win or Tie
                 gameModel.gameState = model.GameState.GAMEOVER
             else: 
@@ -26,6 +30,7 @@ class Controller:
                 gameModel.nextTurn()
         
     def handleEvents(self, gameModel, gameGui):
+        """Handle keyboard or mouse events."""
         # Monitor for events
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -68,6 +73,7 @@ class Controller:
                 gameModel.gameState = model.GameState.PLAYING
 
     def newGame(self):
+        """Run game loop for a single game."""
         clock = pg.time.Clock()
         gameModel = model.TicTacToeGame(model.GameMode.PVAI)
         gameGui = gui.TicTacToeGUI()
@@ -78,7 +84,6 @@ class Controller:
         
         while gameModel.gameRunning:
             self.handleEvents(gameModel, gameGui)
-            # gameGui.screen.fill((0, 0, 0))
             gameGui.render(gameModel, self)
             clock.tick(60)
 
@@ -87,12 +92,14 @@ class Controller:
         if gameModel.winner == 2:
             self.scores[1] += 1
             
-        print(f"Winner: {gameModel.winner}")
+        # print(f"Winner: {gameModel.winner}")
         
     def newGameLoop(self):
+        """Start a new game after each game ends until the controller stops running."""
         while self.controllerRunning:
             self.newGame()
         pg.quit()
+
 
 if __name__ == '__main__':
     game = Controller()
