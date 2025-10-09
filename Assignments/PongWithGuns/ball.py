@@ -55,19 +55,3 @@ class Ball:
         # Y-Coordinates: Center +/- Radius +/- Buffer
         self.hitbox_y1 = self.y - self.radius - self.hitbox_buffer
         self.hitbox_y2 = self.y + self.radius + self.hitbox_buffer
-
-    def reflect_vector(self, normal_x: float, normal_y: float):
-        """Calculates and sets the new velocity vector based on the surface normal."""
-        
-        # Current velocity vector V: (self.vx, self.vy)
-        # Normal vector N: (normal_x, normal_y)
-
-        # 1. Normalize the normal vector (ensure magnitude is 1)
-        # Assuming the caller provides a normalized normal (e.g., (1, 0) or (-1, 0)) for simplicity.
-        
-        # 2. Calculate the projection of V onto N (V dot N)
-        dot_product = self.vx * normal_x + self.vy * normal_y
-        
-        # 3. Calculate the reflected vector R = V - 2 * (V dot N) * N
-        self.vx -= 2 * dot_product * normal_x
-        self.vy -= 2 * dot_product * normal_y
