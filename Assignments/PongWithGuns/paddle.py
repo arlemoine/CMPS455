@@ -41,3 +41,14 @@ class Paddle:
         # Y-Coordinates (start from the center, subtract half height + buffer)
         self.hitbox_y1 = self.y - half_height - self.hitbox_buffer
         self.hitbox_y2 = self.y + half_height + self.hitbox_buffer
+
+    def get_normal(self, is_left_paddle: bool):
+        """Returns the normal vector (x, y) for the paddle's impact surface."""
+        # Left paddle (hits right face) has a normal pointing LEFT (-1, 0)
+        # Right paddle (hits left face) has a normal pointing RIGHT (1, 0)
+        
+        # The collision logic should be written to ensure the ball is only hitting the face.
+        if is_left_paddle:
+            return (1, 0)  # Normal points right
+        else:
+            return (-1, 0) # Normal points left
