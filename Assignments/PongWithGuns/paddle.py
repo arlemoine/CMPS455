@@ -17,7 +17,7 @@ class Paddle:
         self.hitbox_x2 = self.hitbox_x1 + self.width + (2 * self.hitbox_buffer)
         self.hitbox_y2 = self.hitbox_y1 + self.height + (2 * self.hitbox_buffer)
 
-        self.speed = 300
+        self.speed = 240
         self.direction = 0
 
 

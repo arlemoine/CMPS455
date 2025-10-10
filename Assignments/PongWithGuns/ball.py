@@ -20,22 +20,27 @@ class Ball:
         self.MIN_X = bound_left + self.radius
         self.MAX_X = bound_right - self.radius
 
-        self.vx = 200
-        self.vy = 5
+        self.vx = 300
+        self.vy = 30
+
+        self.FRICTION_FACTOR = 0.9995  # Multiplied by speed each frame (close to 1.0)
+        self.MIN_SPEED = 200  
 
         self.update_hitbox()
 
     def move(self, dt):
         """Utilize direction and time displacement to determine new location."""
+        
+        # --- Friction calculation to slow ball ---
+        
+        self.vx *= self.FRICTION_FACTOR
+        self.vy *= self.FRICTION_FACTOR
+        
+        # ------
+
         self.x += self.vx * dt
         self.y += self.vy * dt
 
-        if (
-            self.x <= self.MIN_X or 
-            self.x >= self.MAX_X
-        ):
-            self.x = max(self.MIN_X, min(self.x, self.MAX_X)) 
-            self.vx *= -1
         if (
             self.y <= self.MIN_Y or 
             self.y >= self.MAX_Y

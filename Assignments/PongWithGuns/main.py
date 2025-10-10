@@ -13,15 +13,19 @@ running = True
 
 # Main game loop
 while running:
+    # Handle Input (including QUIT and RESTART)
     running = controller.handle_input()
     if not running:
         break
 
     dt = clock.tick(60) / 1000.0 # 60 FPS cap, msec to sec
 
-    model.update(dt)
+    # UPDATE GAME STATE USING CONTROLLER'S METHOD
+    controller.update_game_state(dt)
 
-    view.render(model)
+    # RENDER using data from the Controller
+    # NOTE: You MUST update view.render() to accept controller.score and controller.game_running
+    view.render(controller.model, controller.score, controller.game_running) 
 
 view.quit()
 
