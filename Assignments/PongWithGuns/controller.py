@@ -12,6 +12,14 @@ class PongController:
         self.MAX_SCORE = 5
         self.game_running = True
 
+        pg.mixer.init()
+        try:
+            self.sound_round_start = pg.mixer.Sound('assets/round_start.mp3')
+        except pg.error as e:
+            print(f"Error loading sound: {e}")
+
+        pg.mixer.Sound.play(self.sound_round_start)
+
     def handle_input(self):
         """Process user input events"""
         # Window events
@@ -33,9 +41,9 @@ class PongController:
         keys = pg.key.get_pressed()
 
         p1_direction = 0
-        if keys[pg.K_w]:
+        if keys[pg.K_w] or keys[pg.K_UP]:
             p1_direction = -1 # Up
-        if keys[pg.K_s]: 
+        if keys[pg.K_s] or keys[pg.K_DOWN]: 
             p1_direction = 1 # Down
 
         self.model.paddle1.set_direction(p1_direction)
@@ -71,11 +79,11 @@ class PongController:
         
         if scorer == 1:
             self.score[0] += 1
-            # ⭐ NEW: Reset the ball after Player 1 scores, launching towards P2 (-1) ⭐
+            pg.mixer.Sound.play(self.sound_round_start)
             self.model.reset_ball(direction_x=-1) 
         elif scorer == 2:
             self.score[1] += 1
-            # ⭐ NEW: Reset the ball after Player 2 scores, launching towards P1 (1) ⭐
+            pg.mixer.Sound.play(self.sound_round_start)
             self.model.reset_ball(direction_x=1) 
             
         if self.score[0] >= self.MAX_SCORE or self.score[1] >= self.MAX_SCORE:

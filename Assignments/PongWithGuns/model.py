@@ -1,6 +1,9 @@
 from paddle import Paddle
 from ball import Ball
+from bullet import Bullet
+from particle import Particle
 import random
+import pygame as pg
 
 
 class PongModel:
@@ -25,10 +28,23 @@ class PongModel:
         self.balls = [self.ball]
 
         self.bullets = []
+        self.particles = []
 
-        self.SHOOT_RATE = .1 # Time (seconds) between shots
-        self.p1_last_shot_time = 0.0
-        self.p2_last_shot_time = 0.0
+        # --- Shooting / Fire rate ---
+        self.SHOOT_RATE = 0.1  # seconds between shots
+        self.last_shot_time_p1 = 0
+        self.last_shot_time_p2 = 0
+
+        # --- Heat system ---
+        self.MAX_HEAT = 100
+        self.HEAT_PER_SHOT = 12
+        self.HEAT_COOLDOWN_RATE = 40    # per second
+        self.OVERHEAT_COOLDOWN_RATE = 20  # per second
+
+        self.p1_heat = 0
+        self.p2_heat = 0
+        self.p1_overheated = False
+        self.p2_overheated = False
 
         self.MAX_BOUNCE_SPEED_Y = 300 # Define the speed attribute
         self.MAX_BOUNCE_ANGLE = 75    # Define the angle attribute (not strictly needed but good to keep)
@@ -38,32 +54,34 @@ class PongModel:
 
         self.next_direction_x = random.choice([-1, 1]) 
 
+        pg.mixer.init()
+        self.sound_bounce = pg.mixer.Sound('assets/bounce.mp3')
+        self.sound_hit = pg.mixer.Sound('assets/hit.mp3')
+        self.sound_bullet = pg.mixer.Sound('assets/bullet.mp3')
+
     def update(self, dt): 
-        """Update position and state of all game objects.""" 
-        
-        # ⭐ REMOVE THIS CALL: self.check_score() ⭐
-        
+        """Update position and state of all game objects."""         
         if self.round_timer > 0:
             self.round_timer -= dt
             
             if self.round_timer <= 0:
-                # ⭐ FIX: USE next_direction_x TO SET VX ⭐
                 direction_x = self.next_direction_x
                 
-                # Launch the ball!
                 self.ball.vx = self.MAX_BOUNCE_SPEED_Y * direction_x 
                 
-                # Randomize VY direction and magnitude (same as before)
                 random_y_factor = random.uniform(0.2, 1.0) * random.choice([-1, 1])
                 self.ball.vy = self.MAX_BOUNCE_SPEED_Y * 0.5 * random_y_factor 
                 
-        # Only run physics/collision/scoring if the timer has expired
         if self.round_timer <= 0:
             
             # 1. Collision and AI logic (must run before movement)
             self.collision_check()
+            self.bullet_collision_check()
             self.update_ai_paddle()
-            
+
+            self.paddle1.update_size(dt)
+            self.paddle2.update_size(dt)
+
             # 2. Movement
             for paddle_model in self.paddles:
                 paddle_model.move(dt)
@@ -77,8 +95,16 @@ class PongModel:
                     active_bullets.append(bullet)
             self.bullets = active_bullets
 
+            active_particles = []
+            for particle in self.particles:
+                if particle.update(dt):
+                    active_particles.append(particle)
+            self.particles = active_particles
+
             # 3. ⭐ CHECK SCORE LAST: Ensures collision is processed before scoring boundary ⭐
             self.check_score() 
+
+            self.cool_guns(dt)
 
     def collision_check(self):
         """Check for collision and handle angle-based bounce."""
@@ -102,6 +128,8 @@ class PongModel:
 
             ball.vx = abs(ball.vx) * 1.05 # Speed increase
 
+            pg.mixer.Sound.play(self.sound_bounce)
+
             return True
 
         # Check against paddle 2 (Right Paddle)
@@ -124,9 +152,87 @@ class PongModel:
             if ball.vx > 0:
                 ball.vx *= -1 
 
+            pg.mixer.Sound.play(self.sound_bounce)
+
             return True
 
         return False
+
+    def bullet_collision_check(self):
+        """
+        Checks for bullet collisions with the ball and paddles.
+        Removes collided bullets.
+        """
+        active_bullets = []
+        
+        # Define a factor to control how much a bullet shot affects the ball.
+        # This prevents an instant massive speed boost.
+        BALL_SPEED_INCREMENT_FACTOR = 0.95
+
+        for bullet in self.bullets:
+            # Assume no collision initially
+            hit_something = False
+            
+            # 1. Check Collision with the Ball
+            if (
+                bullet.hitbox_x2 >= self.ball.hitbox_x1 and 
+                bullet.hitbox_x1 <= self.ball.hitbox_x2 and
+                bullet.hitbox_y2 >= self.ball.hitbox_y1 and 
+                bullet.hitbox_y1 <= self.ball.hitbox_y2
+            ):
+                # Bullet hit the ball
+                hit_something = True
+                self.ball.vx += bullet.vx * BALL_SPEED_INCREMENT_FACTOR
+                self.particles.append(Particle(bullet.x, bullet.y)) 
+
+                pg.mixer.Sound.play(self.sound_hit)
+
+
+                # ⭐ Future Effect Placeholder: Change ball velocity/direction here. ⭐
+                # Example: self.ball.vx += bullet.vx * 0.1
+                pass
+
+            # 2. Check Collision with Paddles (Opponent Only)
+            
+            # P1 (Player 1) bullet hitting P2 (AI) paddle
+            # P1 direction is positive (vx > 0)
+            elif bullet.vx > 0 and (
+                bullet.hitbox_x2 >= self.paddle2.hitbox_x1 and 
+                bullet.hitbox_x1 <= self.paddle2.hitbox_x2 and
+                bullet.hitbox_y2 >= self.paddle2.hitbox_y1 and 
+                bullet.hitbox_y1 <= self.paddle2.hitbox_y2
+            ):
+                # Bullet hit the P2 (AI) paddle
+                hit_something = True
+                self.paddle2.shrink_on_hit()
+                self.particles.append(Particle(bullet.x, bullet.y)) # ⭐ NEW: Create sparkle effect ⭐
+                pg.mixer.Sound.play(self.sound_hit)
+                # ⭐ Future Effect Placeholder: Shrink opposite paddle (P2) here. ⭐
+                # Example: self.paddle2.shrink_temporarily()
+                pass
+                
+            # P2 (AI) bullet hitting P1 (Player 1) paddle
+            # P2 direction is negative (vx < 0)
+            elif bullet.vx < 0 and (
+                bullet.hitbox_x2 >= self.paddle1.hitbox_x1 and 
+                bullet.hitbox_x1 <= self.paddle1.hitbox_x2 and
+                bullet.hitbox_y2 >= self.paddle1.hitbox_y1 and 
+                bullet.hitbox_y1 <= self.paddle1.hitbox_y2
+            ):
+                # Bullet hit the P1 (Human) paddle
+                hit_something = True
+                self.paddle1.shrink_on_hit()
+                self.particles.append(Particle(bullet.x, bullet.y)) # ⭐ NEW: Create sparkle effect ⭐
+                pg.mixer.Sound.play(self.sound_hit)
+                # ⭐ Future Effect Placeholder: Shrink opposite paddle (P1) here. ⭐
+                # Example: self.paddle1.shrink_temporarily()
+                pass
+                
+            # Keep bullets that did NOT hit anything
+            if not hit_something:
+                active_bullets.append(bullet)
+                
+        self.bullets = active_bullets
 
     def update_ai_paddle(self):
         """AI logic for controlling the right paddle (self.paddle2)."""
@@ -173,9 +279,23 @@ class PongModel:
 
     def reset_ball(self, direction_x):
         """Resets the ball to the center and sets its initial direction."""
-        # Reset position to center
+        # Reset ball position to center
         self.ball.x = self.width // 2
         self.ball.y = self.height // 2
+
+        # Reset paddles to center
+        center_y = self.height // 2
+        for paddle in [self.paddle1, self.paddle2]:
+            paddle.y = center_y
+            paddle.height = paddle.original_height
+            paddle.speed = paddle.base_speed
+            paddle.update_hitbox()  # Update hitbox after resizing
+
+        # Reset gun heat
+        self.p1_heat = 0.0
+        self.p2_heat = 0.0
+        self.p1_overheated = False
+        self.p2_overheated = False
 
         # Reset timer and halt movement temporarily
         self.round_timer = self.ROUND_DELAY
@@ -183,42 +303,91 @@ class PongModel:
         self.ball.vy = 0
 
         self.next_direction_x = direction_x
+
+        self.bullets = []
+        self.particles = []
         
     def fire_bullet(self, player_id, current_time):
-        """Creates a bullet if the shoot limit allows it."""
-        from bullet import Bullet
-        
-        # ⭐ FIX: Determine which player's timer to use ⭐
-        if player_id == 1:
-            last_shot = self.p1_last_shot_time
-        else: # player_id == 2
-            last_shot = self.p2_last_shot_time
+        """
+        Fires a bullet for the given player if allowed.
+        Limits the fire rate and handles heat/overheat.
+        """
 
-        # Check if the player can shoot yet
+        from bullet import Bullet
+
+        # --- Select player-specific timers and heat ---
+        if player_id == 1:
+            last_shot = self.last_shot_time_p1
+            heat = self.p1_heat
+            overheated = self.p1_overheated
+        else:
+            last_shot = self.last_shot_time_p2
+            heat = self.p2_heat
+            overheated = self.p2_overheated
+
+        # --- Max fire rate check ---
         if current_time - last_shot < self.SHOOT_RATE:
+            return False  # Too soon to fire again
+
+        # --- Overheat check ---
+        if overheated:
+            return False  # Gun is overheated
+
+        # --- Heat build-up ---
+        if heat >= self.MAX_HEAT:
+            if player_id == 1:
+                self.p1_overheated = True
+            else:
+                self.p2_overheated = True
             return False
 
-        # --- Launch Logic (Remains the same) ---
+        # --- Create bullet ---
         paddle = self.paddle1 if player_id == 1 else self.paddle2
-        
         direction = 1 if player_id == 1 else -1
-        
         offset = paddle.width // 2 + 5
         start_x = paddle.x + (offset * direction)
         start_y = paddle.y
-        
-        new_bullet = Bullet(start_x, start_y, direction, 
-                            0, self.height, 0, self.width) 
-                            
+
+        new_bullet = Bullet(start_x, start_y, direction, 0, self.height, 0, self.width)
         self.bullets.append(new_bullet)
-        
-        # ⭐ FIX: Reset the correct player's timer ⭐
+
+        # --- Update timers and heat AFTER firing ---
         if player_id == 1:
-            self.p1_last_shot_time = current_time
+            self.last_shot_time_p1 = current_time
+            self.p1_heat += self.HEAT_PER_SHOT
         else:
-            self.p2_last_shot_time = current_time
-            
+            self.last_shot_time_p2 = current_time
+            self.p2_heat += self.HEAT_PER_SHOT
+
+        # --- Play sound ---
+        pg.mixer.Sound.play(self.sound_bullet)
+
         return True
+
+
+
+    def cool_guns(self, dt):
+        # Player 1 cooling
+        if self.p1_heat > 0:
+            if self.p1_overheated:
+                cooldown = self.OVERHEAT_COOLDOWN_RATE * dt
+            else:
+                cooldown = self.HEAT_COOLDOWN_RATE * dt
+
+            self.p1_heat = max(0, self.p1_heat - cooldown)
+            if self.p1_heat <= 0:
+                self.p1_overheated = False
+
+        # Player 2 cooling
+        if self.p2_heat > 0:
+            if self.p2_overheated:
+                cooldown = self.OVERHEAT_COOLDOWN_RATE * dt
+            else:
+                cooldown = self.HEAT_COOLDOWN_RATE * dt
+                
+            self.p2_heat = max(0, self.p1_heat - cooldown)
+            if self.p2_heat <= 0:
+                self.p2_overheated = False
 
     def update_ai_shooting(self, current_time):
         """AI (P2) decides whether to shoot based on the ball's position and velocity."""

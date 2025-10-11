@@ -4,6 +4,7 @@ from view import PongView
 from controller import PongController
 
 pg.init()
+pg.mixer.init() 
 view = PongView()
 model = PongModel(view.SCREEN_WIDTH, view.SCREEN_HEIGHT)
 controller = PongController(model)
@@ -20,11 +21,8 @@ while running:
 
     dt = clock.tick(60) / 1000.0 # 60 FPS cap, msec to sec
 
-    # UPDATE GAME STATE USING CONTROLLER'S METHOD
     controller.update_game_state(dt)
 
-    # RENDER using data from the Controller
-    # NOTE: You MUST update view.render() to accept controller.score and controller.game_running
     view.render(controller.model, controller.score, controller.game_running) 
 
 view.quit()
