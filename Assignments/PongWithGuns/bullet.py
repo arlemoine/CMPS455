@@ -23,7 +23,7 @@ class Bullet:
         self.MAX_X_REMOVE = bound_right + self.width # Remove when slightly off-screen right
         
 
-        self.speed = 400 
+        self.speed = 600 
         self.vx = self.speed * direction
 
         self.update_hitbox()

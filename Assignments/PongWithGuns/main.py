@@ -3,8 +3,11 @@ from model import PongModel
 from view import PongView
 from controller import PongController
 
+# Initialize pygame and mixer
 pg.init()
-pg.mixer.init() 
+pg.mixer.init()
+
+# Initialize MVC components
 view = PongView()
 model = PongModel(view.SCREEN_WIDTH, view.SCREEN_HEIGHT)
 controller = PongController(model)
@@ -14,16 +17,19 @@ running = True
 
 # Main game loop
 while running:
-    # Handle Input (including QUIT and RESTART)
+    # Handle input (movement, shooting, quit, restart)
     running = controller.handle_input()
     if not running:
         break
 
-    dt = clock.tick(60) / 1000.0 # 60 FPS cap, msec to sec
+    # Time delta in seconds (frame-independent movement)
+    dt = clock.tick(90) / 1000.0  # 60 FPS cap
 
-    controller.update_game_state(dt)
+    # Update game logic (model)
+    controller.update_game_state(dt) 
 
-    view.render(controller.model, controller.score, controller.game_running) 
+    # Render everything (view)
+    view.render(controller.model, controller.score, controller.game_running)
 
+# Quit pygame cleanly
 view.quit()
-
