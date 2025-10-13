@@ -5,8 +5,10 @@ from model import PongModel
 class PongController:
     """Controller for Pong With Guns."""
     
-    def __init__(self, model: PongModel):
+    def __init__(self, model: PongModel, view):
         self.model = model
+        self.view = view
+        self.game_mode = None
         self.score = [0, 0]
         self.MAX_SCORE = 2
         self.game_running = True
@@ -32,18 +34,30 @@ class PongController:
             
         keys = pg.key.get_pressed()
 
-        # Player 1 movement
-        p1_dir = -1 if keys[pg.K_w] or keys[pg.K_UP] else 1 if keys[pg.K_s] or keys[pg.K_DOWN] else 0
-        self.model.paddle1.set_direction(p1_dir)
+        # --- Player 1 controls (existing) ---
+        if keys[pg.K_w]:
+            self.model.paddle1.set_direction(-1)  # Move up
+        elif keys[pg.K_s]:
+            self.model.paddle1.set_direction(1)   # Move down
+        else:
+            self.model.paddle1.set_direction(0)   # No movement
 
-        # Player 2 movement
-        p2_dir = -1 if keys[pg.K_UP] else 1 if keys[pg.K_DOWN] else 0
-        self.model.paddle2.set_direction(p2_dir)
+        if keys[pg.K_SPACE]:
+            self.model.fire_bullet(1, pg.time.get_ticks() / 1000.0)
 
-        # Player 1 shooting
-        if self.game_running and keys[pg.K_SPACE]:
-            current_time = pg.time.get_ticks() / 1000.0  # seconds
-            self.model.fire_bullet(1, current_time)
+        # --- Player 2 controls (PvP mode) ---
+        if self.game_mode == 'PvP':
+            # Movement
+            if keys[pg.K_UP]:
+                self.model.paddle2.set_direction(-1)  # Move up
+            elif keys[pg.K_DOWN]:
+                self.model.paddle2.set_direction(1)   # Move down
+            else:
+                self.model.paddle2.set_direction(0)   # No movement
+
+            # Shooting
+            if keys[pg.K_RSHIFT]:
+                self.model.fire_bullet(2, pg.time.get_ticks() / 1000.0)
 
         return True
 
@@ -53,8 +67,9 @@ class PongController:
             return
 
         current_time = pg.time.get_ticks() / 1000.0
-        self.model.update_ai_shooting(current_time)
-        self.model.update(dt)
+        if self.game_mode == "PvAI":
+            self.model.update_ai_shooting(current_time)
+        self.model.update(dt, ai_enabled = (self.game_mode == "PvAI"))
 
         scorer = self.model.check_score()
         if scorer == 1:
@@ -68,3 +83,24 @@ class PongController:
 
         if self.score[0] >= self.MAX_SCORE or self.score[1] >= self.MAX_SCORE:
             self.game_running = False
+
+    def select_mode(self):
+        selecting = True
+        mode = None
+        while selecting:
+            self.view.draw_start_menu()
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    selecting = False
+                    mode = "QUIT"
+                elif event.type == pg.KEYDOWN:
+                    if event.key == pg.K_1:
+                        mode = "PvAI"
+                        selecting = False
+                    elif event.key == pg.K_2:
+                        mode = "PvP"
+                        selecting = False
+                    elif event.key == pg.K_q:
+                        mode = "QUIT"
+                        selecting = False
+        return mode

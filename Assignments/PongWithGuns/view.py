@@ -20,6 +20,20 @@ class PongView:
         pg.display.set_caption("Pong with Guns")
         self.font = pg.font.Font(None, 74)
         
+    def draw_start_menu(self):
+        self.screen.fill((0, 0, 0))
+        font = pg.font.SysFont(None, 48)
+        options = [
+            "[1] Player vs AI",
+            "[2] Player vs Player",
+            "[Q] Quit"
+        ]
+        for i, text in enumerate(options):
+            label = font.render(text, True, (255, 255, 255))
+            self.screen.blit(label, (self.SCREEN_WIDTH // 2 - label.get_width() // 2,
+                                     150 + i * 60))
+        pg.display.flip()
+    
     def interpolate_color(self, color1, color2, fraction):
         """Blend between two RGB colors."""
         r = int(color1[0] + (color2[0] - color1[0]) * fraction)

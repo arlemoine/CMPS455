@@ -29,7 +29,7 @@ class PongModel:
         self.particles = []
 
         # Fire rate (seconds)
-        self.SHOOT_RATE = 1
+        self.SHOOT_RATE = .1
         self.last_shot_time_p1 = 0
         self.last_shot_time_p2 = 0
 
@@ -55,7 +55,7 @@ class PongModel:
         self.sound_hit = pg.mixer.Sound('assets/hit.mp3')
         self.sound_bullet = pg.mixer.Sound('assets/bullet.mp3')
 
-    def update(self, dt):
+    def update(self, dt, ai_enabled):
         if self.round_timer > 0:
             self.round_timer -= dt
             if self.round_timer <= 0:
@@ -65,7 +65,8 @@ class PongModel:
         if self.round_timer <= 0:
             self.collision_check()
             self.bullet_collision_check()
-            self.update_ai_paddle()
+            if ai_enabled:
+                self.update_ai_paddle()
 
             self.paddle1.update_size(dt)
             self.paddle2.update_size(dt)
