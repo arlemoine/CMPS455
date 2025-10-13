@@ -88,7 +88,7 @@ class PongController:
         selecting = True
         mode = None
         while selecting:
-            self.view.draw_start_menu()
+            self.view.draw_start_menu()  # Show styled menu
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     selecting = False

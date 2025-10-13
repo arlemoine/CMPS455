@@ -8,6 +8,8 @@ BLUE = (0, 0, 255)
 GREEN = (0, 255, 0)
 ORANGE = (255, 165, 0)
 
+KEY_SIZE=60
+
 
 class PongView:
     """View component of Pong With Guns."""
@@ -19,19 +21,50 @@ class PongView:
         self.screen = pg.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
         pg.display.set_caption("Pong with Guns")
         self.font = pg.font.Font(None, 74)
+
+        # Load game assets
+        try:
+            key1_png = pg.image.load('assets/key_1_light.png').convert_alpha()
+            self.key1_img = pg.transform.scale(
+                key1_png, (KEY_SIZE, KEY_SIZE))
+            key2_png = pg.image.load('assets/key_2_light.png').convert_alpha()
+            self.key2_img = pg.transform.scale(
+                key2_png, (KEY_SIZE, KEY_SIZE))
+            keyQ_png = pg.image.load('assets/key_q_light.png').convert_alpha()
+            self.keyQ_img = pg.transform.scale(
+                keyQ_png, (KEY_SIZE, KEY_SIZE))
+        except pg.error as e:
+            print(f"Error loading image: {e}")
         
     def draw_start_menu(self):
-        self.screen.fill((0, 0, 0))
-        font = pg.font.SysFont(None, 48)
-        options = [
-            "[1] Player vs AI",
-            "[2] Player vs Player",
-            "[Q] Quit"
-        ]
-        for i, text in enumerate(options):
-            label = font.render(text, True, (255, 255, 255))
-            self.screen.blit(label, (self.SCREEN_WIDTH // 2 - label.get_width() // 2,
-                                     150 + i * 60))
+        """Draw the Pong main menu (dark background, light keys)."""
+        self.screen.fill((0, 0, 0))  # Dark background
+
+        # --- Title ---
+        title_font = pg.font.SysFont("Arial", 64)
+        title_text = title_font.render("PONG WITH GUNS", True, (255, 255, 255))
+        self.screen.blit(title_text, (self.SCREEN_WIDTH // 2 - title_text.get_width() // 2, 100))
+
+        # --- Options ---
+        option_font = pg.font.SysFont("Arial", 36)
+        y_start = 300
+        spacing = 120
+
+        # Player vs AI
+        self.screen.blit(self.key1_img, (self.SCREEN_WIDTH // 2 - 200, y_start))
+        text = option_font.render("Player vs AI", True, (220, 220, 220))
+        self.screen.blit(text, (self.SCREEN_WIDTH // 2 - 100, y_start + self.key1_img.get_height() // 4))
+
+        # Player vs Player
+        self.screen.blit(self.key2_img, (self.SCREEN_WIDTH // 2 - 200, y_start + spacing))
+        text = option_font.render("Player vs Player", True, (220, 220, 220))
+        self.screen.blit(text, (self.SCREEN_WIDTH // 2 - 100, y_start + spacing + self.key2_img.get_height() // 4))
+
+        # Quit
+        self.screen.blit(self.keyQ_img, (self.SCREEN_WIDTH // 2 - 200, y_start + spacing * 2))
+        text = option_font.render("Quit", True, (220, 220, 220))
+        self.screen.blit(text, (self.SCREEN_WIDTH // 2 - 100, y_start + spacing * 2 + self.keyQ_img.get_height() // 4))
+
         pg.display.flip()
     
     def interpolate_color(self, color1, color2, fraction):
