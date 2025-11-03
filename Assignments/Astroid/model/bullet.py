@@ -12,6 +12,7 @@ class Bullet:
         self.y_start = y + offset_y
         self.x = self.x_start
         self.y = self.y_start
+        self.radius = 1
         self.vx = config.BULLET_SPEED * math.cos(self.angle_rad)
         self.vy = config.BULLET_SPEED * math.sin(self.angle_rad)
         self.distance = 0

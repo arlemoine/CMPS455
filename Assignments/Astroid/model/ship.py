@@ -2,17 +2,22 @@ import math
 import pygame as pg
 import config
 from model.ship_type import ShipType
+from model.forcefield import Forcefield
 from model.bullet import Bullet
 
 class Ship:
     '''Model for Asteroid ship.'''
     def __init__(self, ship_type: int):
         self.ship_type = ship_type
+        self.alive = True
         self.x = config.SHIP_X
         self.y = config.SHIP_Y
+        self.radius = 34
         self.angle = 0
         self.vx = 0.0
         self.vy = 0.0
+
+        self.forcefield = Forcefield(self.x, self.y)
 
         self.bullets = []
         self.time_last_bullet = 0
@@ -44,6 +49,10 @@ class Ship:
         elif self.y < config.HARD_BOUNDARY_TOP:
             self.y = config.HARD_BOUNDARY_BOTTOM
 
+        # 💡 Update the forcefield position and animation
+        self.forcefield.recenter(self.x, self.y)
+        self.forcefield.update() # Call the update for the glow animation!
+
         # Bullets
         for i in self.bullets:
             i.update(dt)
@@ -61,6 +70,22 @@ class Ship:
         rad = math.radians(self.angle-90)
         self.vx += math.cos(rad) * config.THRUST_POWER * dt
         self.vy += math.sin(rad) * config.THRUST_POWER * dt
+
+    def brake(self, dt):
+        """Apply braking force to slow down the ship."""
+        speed = math.hypot(self.vx, self.vy)
+        if speed == 0:
+            return
+
+        # Braking deceleration power
+        brake_power = config.BRAKE_POWER * dt
+
+        # Compute scaling factor so we don't reverse direction
+        scale = max((speed - brake_power) / speed, 0)
+
+        self.vx *= scale
+        self.vy *= scale
+
 
     def fire_bullet(self):
         time_current = pg.time.get_ticks()

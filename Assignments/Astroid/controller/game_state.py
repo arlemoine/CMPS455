@@ -4,3 +4,4 @@ class GameState(Enum):
     MENU = auto()
     PLAYING = auto()
     PAUSED = auto()
+    GAMEOVER = auto()
