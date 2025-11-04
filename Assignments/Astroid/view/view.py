@@ -430,12 +430,13 @@ class View:
         """Render all game objects."""
         self.screen.fill(config.BLACK)
 
-        if controller.state == GameState.MENU:
+        if controller.state in (GameState.MENU, GameState.PLAYING):
             # Draw menu
             for particle in model.particles:
                 self.draw_particle(particle)
 
-            self.draw_menu(controller)
+            if controller.state == GameState.MENU:
+                self.draw_menu(controller)
 
         if controller.state in (GameState.PLAYING, GameState.PAUSED, GameState.GAMEOVER):
             # Draw explosions first so they are under other objects

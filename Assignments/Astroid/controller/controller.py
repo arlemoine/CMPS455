@@ -69,12 +69,12 @@ class Controller:
         if self.state == GameState.PLAYING:
             trigger = self.model.update(dt)
             if trigger == -1:
-                self.toggle_gameover()  # Switch to GAMEOVER once
+                self.toggle_gameover() 
         elif self.state == GameState.GAMEOVER:
             # Still update the model, but ignore repeated death triggers
             self.model.update(dt)
-        elif self.state == GameState.MENU:
-            self.model.menu_update(dt)
+        elif self.state in (GameState.MENU, GameState.PLAYING):
+            self.model.particle_update(dt)
 
     def menu_up(self):
         """Move up one selection in the current active menu."""

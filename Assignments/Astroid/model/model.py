@@ -31,6 +31,8 @@ class Model:
 
     def update(self, dt):
         """Update the game state."""
+        self.particle_update(dt)
+
         if self.ship.alive:
             self.ship.update(dt)
 
@@ -147,7 +149,7 @@ class Model:
         if self.gameOver:
             return -1
 
-    def menu_update(self, dt):
+    def particle_update(self, dt):
         current_time = pg.time.get_ticks()
 
         self.particles = [p for p in self.particles if (p.update(dt) or not p.expired)]
