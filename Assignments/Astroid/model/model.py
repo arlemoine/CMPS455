@@ -5,6 +5,7 @@ import pygame as pg
 from model.ship import Ship
 from model.astroid import Astroid
 from model.explosion import Explosion
+from model.hud import Hud
 from model.particle import Particle
 
 class Model:
@@ -12,6 +13,7 @@ class Model:
 
     def __init__(self, ship_type):
         self.ship = Ship(ship_type)
+        self.hud = Hud()
         self.gameOver = False
         self.score = 0
         self.astroids = []
@@ -24,10 +26,7 @@ class Model:
         self.total_time = 0
         self.level = 1 # Starting difficulty level
 
-        # pg.mixer.init()
-        # self.sound_bounce = pg.mixer.Sound('assets/bounce.mp3')
-        # self.sound_hit = pg.mixer.Sound('assets/hit.mp3')
-        # self.sound_bullet = pg.mixer.Sound('assets/bullet.mp3')
+        self.sound_explosion = pg.mixer.Sound('assets/explosion.wav')
 
     def update(self, dt):
         """Update the game state."""
@@ -37,6 +36,8 @@ class Model:
         new_astroids = []
         astroids_to_remove = set()
         explosions_to_add = []
+
+        self.hud.update_critical_pulse(self)
 
         # 1️⃣ Update asteroids
         for astroid in self.astroids:
@@ -84,6 +85,7 @@ class Model:
                         astroids_to_remove.add(astroid)
                         self.score += 3
                         explosions_to_add.append(Explosion(astroid.x, astroid.y))
+                        pg.mixer.Sound.play(self.sound_explosion)
                     break  # One bullet hits only one asteroid
 
             # Forcefield / ship collisions
@@ -92,9 +94,10 @@ class Model:
                     if self.ship.forcefield.damage():  # returns True if destroyed?
                         astroids_to_remove.add(astroid)
             else:
-                if self.collision_check(self.ship, astroid):
+                if self.collision_check(self.ship, astroid) and self.ship.alive:
                     # Ship collides — create explosion immediately
                     explosions_to_add.append(Explosion(self.ship.x, self.ship.y))
+                    pg.mixer.Sound.play(self.sound_explosion)
                     self.ship.alive = False
                     self.gameOver = True
                     astroids_to_remove.add(astroid)  # optional: remove asteroid too

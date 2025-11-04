@@ -7,8 +7,8 @@ from controller.controller import Controller
 
 def main():
     pg.init()
-    pg.mixer.init()  # optional for sounds
-
+    pg.mixer.init()
+    
     # MVC
     model = Model(ShipType.RED)
     view = View()
@@ -24,6 +24,7 @@ def main():
         
         # Update
         controller.update_game(dt)
+        controller.update_music()
         
         # Render
         view.render(controller, model)

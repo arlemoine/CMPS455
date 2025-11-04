@@ -25,9 +25,12 @@ class Controller:
         # self.MAX_SCORE = 2
 
         # --- SOUNDS ---
-        # pg.mixer.init()
-        # self.sound_round_start = pg.mixer.Sound('assets/round_start.mp3')
-        # pg.mixer.Sound.play(self.sound_round_start)
+        self.sound_main_menu = pg.mixer.Sound('assets/main_menu.wav')
+        self.sound_in_game = pg.mixer.Sound('assets/in_game.wav')
+
+        # 🎵 Create a dedicated channel for background music
+        self.music_channel = pg.mixer.Channel(0)
+        self.current_music = None
 
     def handle_input(self, ship, model, dt):
         """Handle all user input events."""
@@ -131,3 +134,20 @@ class Controller:
         self.state = GameState.GAMEOVER
         self.active_menu = "gameover"
         self.menu_choice_index = 0
+
+    def play_music(self, sound, label):
+        """Play a looping background track on the music channel only."""
+        if self.current_music != label:
+            self.music_channel.stop()          # stop only music, not SFX
+            self.music_channel.play(sound, loops=-1)
+            self.current_music = label
+
+    def update_music(self):
+        """Switch background music based on game state."""
+        if self.state == GameState.MENU:
+            self.play_music(self.sound_main_menu, "main_menu")
+        elif self.state in (GameState.PLAYING, GameState.GAMEOVER):
+            self.play_music(self.sound_in_game, "in_game")
+        elif self.state == GameState.PAUSED:
+            # Optional: lower volume or pause music
+            pass

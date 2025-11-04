@@ -22,6 +22,8 @@ class Ship:
         self.bullets = []
         self.time_last_bullet = 0
 
+        self.sound_bullet = pg.mixer.Sound('assets/bullet.wav')
+
     def update(self, dt):
         self.x += self.vx * dt
         self.y += self.vy * dt
@@ -97,6 +99,7 @@ class Ship:
             
             # Fire the bullet
             self.bullets.append(Bullet(self.x, self.y, self.angle))
+            pg.mixer.Sound.play(self.sound_bullet)
             
             # Reset the timer
             self.time_last_bullet = current_time

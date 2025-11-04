@@ -11,6 +11,9 @@ MUTED_RED = (170, 70, 70)
 COSMIC_PURPLE = (78, 30, 100)
 VIBRANT_CYAN = (50, 205, 230)
 NEBULA_PINK = (255, 69, 200)
+GREEN = (0, 255, 0)
+DARK_GREY = (50, 50, 50)
+TRANSPARENT = (0, 0, 0, 0)
 
 # Game window settings
 SCREEN_WIDTH = 1000
@@ -55,8 +58,12 @@ FIRE_DELAY_MS = 100
 ASTROID_ROTATION_SPEED = 80
 ASTROID_MOVEMENT_SPEED = 10
 ASTROID_SPAWN_RATE_START = 500 # Initial spawn interval in ms
-ASTROID_SPAWN_RATE_MIN = 100 # Fastest spawn interval (hard cap)
+ASTROID_SPAWN_RATE_MIN = 1 # Fastest spawn interval (hard cap)
 ASTROID_SPAWN_ACCEL = 0.01 # Decrease per second (ms/sec)
+
+# Forcefield
+
+FORCEFIELD_HEALTH = 5
 
 # Explosions
 

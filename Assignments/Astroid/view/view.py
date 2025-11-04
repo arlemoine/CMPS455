@@ -24,6 +24,10 @@ class View:
         ship_img = pg.image.load(config.DIR_ASSETS + "ship01.png").convert_alpha()
         self.ship_img = pg.transform.scale(ship_img, (50, 50))  # scale to size you want
 
+        # Load HUD background image
+        hud_bkgd_img = pg.image.load(config.DIR_ASSETS + "hud_bkgd.png").convert()
+        self.hud_bkgd_img = pg.transform.scale(hud_bkgd_img, (config.SCREEN_WIDTH, config.HUD_HEIGHT))  # scale to size you want
+
         self.astroid_images = []
         for i in range(1, 5):
             path = config.DIR_ASSETS + f"astroid_0{i}.png"
@@ -163,33 +167,32 @@ class View:
         rect = surf.get_rect(center=(x, y))
         self.screen.blit(surf, rect)
 
-    def draw_text_card(self, text, x, y, size=50, text_color=config.BLACK, rect_color=config.SILVER, min_width=0, border_color=None, border_width=0):
+    def draw_text_card(self, surface, text, x, y, size=50, text_color=config.BLACK,
+                    rect_color=config.SILVER, min_width=0, border_color=None, border_width=0):
+        """
+        Draw text with a background "card" onto the given surface.
+        """
         font = pg.font.Font(None, size)
         text_surf = font.render(text, True, text_color)
-        
-        # 1. Get the Rect of the text for size and positioning
+
+        # 1️⃣ Determine background rect
         text_rect = text_surf.get_rect(center=(x, y))
-
-        # 2. Determine the width of the background box
-        # Use the requested minimum width or the actual text width, whichever is larger
         required_width = max(text_rect.width, min_width)
-
-        # 3. Create the background rect based on the calculated width
         padding_x = 50
         padding_y = 40
         bkgd_rect = pg.Rect(0, 0, required_width + padding_x, text_rect.height + padding_y)
-        bkgd_rect.center = (x, y) # Center the background where the text should be
+        bkgd_rect.center = (x, y)
 
-        # 4. Draw background (filled rectangle)
-        pg.draw.rect(self.screen, rect_color, bkgd_rect, border_radius=10)
+        # 2️⃣ Draw background rectangle
+        pg.draw.rect(surface, rect_color, bkgd_rect, border_radius=10)
 
-        # 5. Draw border if specified (must be drawn after the filled rect)
+        # 3️⃣ Draw border if specified
         if border_color and border_width > 0:
-            # We use the same rect, but draw it with a specified width (not filled)
-            pg.draw.rect(self.screen, border_color, bkgd_rect, border_radius=10, width=border_width)
+            pg.draw.rect(surface, border_color, bkgd_rect, border_radius=10, width=border_width)
 
-        # 6. Draw text
-        self.screen.blit(text_surf, text_rect)
+        # 4️⃣ Draw text
+        surface.blit(text_surf, text_rect)
+
 
     def draw_menu(self, controller):
         banner_y = config.SCREEN_HEIGHT // 4
@@ -215,8 +218,8 @@ class View:
         border[controller.menu_choice_index] = 3 # Border width for selected item
         text_color[controller.menu_choice_index] = config.SILVER
 
-        self.draw_text_card("Play", x, y1, text_color=text_color[0], rect_color=rect_color[0], min_width=menu_card_width, border_color=config.VIBRANT_CYAN, border_width=border[0])
-        self.draw_text_card("Quit", x, y2, text_color=text_color[1], rect_color=rect_color[1], min_width=menu_card_width, border_color=config.VIBRANT_CYAN, border_width=border[1])
+        self.draw_text_card(self.screen, "Play", x, y1, text_color=text_color[0], rect_color=rect_color[0], min_width=menu_card_width, border_color=config.VIBRANT_CYAN, border_width=border[0])
+        self.draw_text_card(self.screen, "Quit", x, y2, text_color=text_color[1], rect_color=rect_color[1], min_width=menu_card_width, border_color=config.VIBRANT_CYAN, border_width=border[1])
 
     def draw_gameover_menu(self, controller):
         """Draw the Game Over menu on top of the gameplay screen."""
@@ -249,6 +252,7 @@ class View:
             border_width = 3 if selected else 0
 
             self.draw_text_card(
+                self.screen,
                 label,
                 x,
                 y_start + i * spacing,
@@ -259,42 +263,168 @@ class View:
                 border_width=border_width
             )
 
-    # view.py
-    def draw_hud(self, model):
-        """Draws the HUD at the bottom of the screen (score, level, etc.)."""
-        # Background bar
-        hud_rect = pg.Rect(
-            0,
-            config.SCREEN_HEIGHT - config.HUD_HEIGHT,
-            config.SCREEN_WIDTH,
-            config.HUD_HEIGHT
+    # =============== HUD DRAWING =================
+
+    def _create_hud_surface(self):
+        """Create and return a transparent HUD surface."""
+        hud_surface = pg.Surface(
+            (config.SCREEN_WIDTH, config.HUD_HEIGHT),
+            pg.SRCALPHA
         )
-        pg.draw.rect(self.screen, config.SILVER, hud_rect)
+        hud_surface.fill((0, 0, 0, 0))
+        return hud_surface
 
-        # Text positions
-        hud_y_center = config.SCREEN_HEIGHT - config.HUD_HEIGHT // 2
+    def _draw_hud_background(self, surface):
+        """Draws the HUD background panel."""
+        surface.blit(self.hud_bkgd_img, (0, 0))
 
-        # Score (centered)
+    def _draw_hud_score(self, surface, model):
+        x_pos = config.SCREEN_WIDTH * 4 // 5
+        y_pos = config.HUD_HEIGHT // 2
         score_text = f"Score: {model.score}"
-        self.draw_text(
+        self.draw_text_card(
+            surface,                 # draw on HUD surface, not self.screen
             score_text,
-            config.SCREEN_WIDTH // 2,
-            hud_y_center,
-            size=40,
-            color=config.BLACK  # contrast with silver background
-        )
-
-        # Level / difficulty (left-aligned in HUD)
-        level_text = f"Level: {model.level}"
-        self.draw_text(
-            level_text,
-            20,  # small left padding
-            hud_y_center,
+            x_pos,
+            y_pos,
             size=30,
-            color=config.BLACK  # subtle and readable
+            text_color=config.GREEN,
+            rect_color=config.BLACK,
+            min_width=120
+        )
+
+    def _draw_hud_level(self, surface, model):
+        x_pos = config.SCREEN_WIDTH * 1 // 5
+        y_pos = config.HUD_HEIGHT // 2
+        level_text = f"Level: {model.level}"
+        self.draw_text_card(
+            surface,                 # draw on HUD surface
+            level_text,
+            x_pos,
+            y_pos,
+            size=30,
+            text_color=config.GREEN,
+            rect_color=config.BLACK,
+            min_width=100
         )
 
 
+
+    def _draw_hud_forcefield_health(self, surface, model):
+        """Draws an arc-based forcefield health indicator with pulsing when depleted."""
+        # 1️⃣ Configuration
+        component_width = 300
+        component_height = config.HUD_HEIGHT * 1 // 2
+        arc_thickness = 14
+        gap_width = 5
+        num_segments = config.FORCEFIELD_HEALTH
+        num_gaps = num_segments - 1
+        deg_per_segment = (180 - gap_width * num_gaps) / num_segments
+
+        # 2️⃣ Rectangle for the arc
+        rect = (
+            round(config.SCREEN_WIDTH / 2 - component_width / 2),
+            round(config.HUD_HEIGHT / 4),
+            round(component_width),
+            round(component_height)
+        )
+
+        # 4️⃣ Determine health info
+        health_ratio = model.ship.forcefield.health / model.ship.forcefield.max_health
+        active_segments = int(num_segments * health_ratio)
+
+        # 5️⃣ Determine segment color
+        if health_ratio <= 0:
+            # Pulsing red
+            pulse = model.hud.glow_state  # 0–1
+            # Map to alpha or brightness for pulsing effect
+            alpha = int(128 + 127 * pulse)  # 128 → 255
+            color = (255, 0, 0, alpha)
+        else:
+            if health_ratio < 0.2:
+                color = config.RED
+            elif health_ratio < 0.5:
+                color = config.YELLOW
+            else:
+                color = config.GREEN
+
+        # --- Draw black background rectangle behind forcefield health ---
+        padding = 20  # extra space around the health arc
+        bg_rect = pg.Rect((rect[0] - padding), (rect[1] - padding), (rect[2] + padding * 2), (rect[3] + padding * 2))
+        pg.draw.rect(surface, config.BLACK, bg_rect, border_radius=10)
+
+        self._draw_hud_text(surface, "Forcefield", (config.SCREEN_WIDTH // 2), (config.HUD_HEIGHT - 30), size=30, color=config.GREEN)
+
+        # 3️⃣ Draw base gray segments
+        start_deg = 0.0
+        for i in range(num_segments):
+            end_deg = start_deg + deg_per_segment
+            pg.draw.arc(
+                surface,
+                config.DARK_GREY,
+                rect,
+                math.radians(start_deg),
+                math.radians(end_deg),
+                arc_thickness
+            )
+            start_deg = end_deg + gap_width
+
+        # 3️⃣ Draw critical pulsing segments if forcefield depleted
+        if health_ratio <= 0:
+            start_deg = 0.0
+            for i in range(num_segments):
+                end_deg = start_deg + deg_per_segment
+                pg.draw.arc(
+                    surface,
+                    color,
+                    rect,
+                    math.radians(start_deg),
+                    math.radians(end_deg),
+                    arc_thickness
+                )
+                start_deg = end_deg + gap_width
+
+        # 6️⃣ Draw active segments right-to-left
+        end_deg = 180.0  # leftmost point
+        for i in range(active_segments):
+            start_deg = end_deg - deg_per_segment
+            # Draw segment
+            pg.draw.arc(
+                surface,
+                color,
+                rect,
+                math.radians(start_deg),
+                math.radians(end_deg),
+                arc_thickness
+            )
+            end_deg = start_deg - gap_width
+
+
+    def _draw_hud_text(self, surface, text, x, y, size=30, color=config.WHITE):
+        """Helper for rendering text onto HUD surfaces."""
+        font = pg.font.Font(None, size)
+        text_surf = font.render(text, True, color)
+        rect = text_surf.get_rect(center=(x, y))
+        surface.blit(text_surf, rect)
+
+    def draw_hud(self, model):
+        """Main HUD drawing function."""
+        # Create HUD surface
+        hud_surface = self._create_hud_surface()
+
+        # Draw modular components
+        self._draw_hud_background(hud_surface)
+        self._draw_hud_score(hud_surface, model)
+        self._draw_hud_level(hud_surface, model)
+        self._draw_hud_forcefield_health(hud_surface, model)
+
+        # Position HUD at the bottom of the screen
+        self.screen.blit(
+            hud_surface,
+            (0, config.SCREEN_HEIGHT - config.HUD_HEIGHT)
+        )
+
+    # =============================================
 
     def render(self, controller, model):
         """Render all game objects."""
@@ -329,7 +459,18 @@ class View:
             # Optional: draw score, lives, etc.
 
             if controller.state == GameState.PAUSED:
-                self.draw_text_card("PAUSED", (config.SCREEN_WIDTH // 2), (config.SCREEN_HEIGHT // 2))
+                overlay = pg.Surface((config.SCREEN_WIDTH, config.SCREEN_HEIGHT), pg.SRCALPHA)
+                overlay.fill((0, 0, 0, 180))  # semi-transparent
+                self.draw_text_card(
+                    overlay,
+                    "PAUSED",
+                    config.SCREEN_WIDTH // 2,
+                    config.SCREEN_HEIGHT // 2,
+                    size=60,
+                    text_color=config.GREEN,
+                    rect_color=config.BLACK
+                )
+                self.screen.blit(overlay, (0, 0))
 
             if controller.state == GameState.GAMEOVER:
                 self.draw_gameover_menu(controller)

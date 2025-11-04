@@ -5,7 +5,7 @@ class Forcefield:
         self.x = x
         self.y = y
         self.radius = 34
-        self.max_health = 5
+        self.max_health = config.FORCEFIELD_HEALTH
         self.health = self.max_health
         
         # Base Glow Effect Variables
