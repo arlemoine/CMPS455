@@ -1,14 +1,15 @@
 import pygame as pg
+
 import config
+from controller.controller import Controller
 from model.model import Model
 from model.ship_type import ShipType
 from view.view import View
-from controller.controller import Controller
 
 def main():
     pg.init()
     pg.mixer.init()
-    
+
     # MVC
     model = Model(ShipType.RED)
     view = View()

@@ -1,12 +1,13 @@
-import config
 import math
 import random
 import pygame as pg
-from model.ship import Ship
+
+import config
 from model.astroid import Astroid
 from model.explosion import Explosion
 from model.hud import Hud
 from model.particle import Particle
+from model.ship import Ship
 
 class Model:
     """Main model for Astroids."""
@@ -39,13 +40,13 @@ class Model:
 
         self.hud.update_critical_pulse(self)
 
-        # 1️⃣ Update asteroids
+        # Update asteroids
         for astroid in self.astroids:
             if astroid.update(dt):
                 new_astroids.append(astroid)
         self.astroids = new_astroids
 
-        # 2️⃣ Check collisions
+        # Check collisions
 
         # Check asteroid-to-asteroid collisions
         for i in range(len(self.astroids)):
@@ -91,7 +92,7 @@ class Model:
             # Forcefield / ship collisions
             if self.ship.forcefield.health > 0:
                 if self.collision_check(self.ship.forcefield, astroid):
-                    if self.ship.forcefield.damage():  # returns True if destroyed?
+                    if self.ship.forcefield.damage():
                         astroids_to_remove.add(astroid)
             else:
                 if self.collision_check(self.ship, astroid) and self.ship.alive:
@@ -100,24 +101,24 @@ class Model:
                     pg.mixer.Sound.play(self.sound_explosion)
                     self.ship.alive = False
                     self.gameOver = True
-                    astroids_to_remove.add(astroid)  # optional: remove asteroid too
+                    astroids_to_remove.add(astroid)
 
-        # 3️⃣ Remove bullets that hit
+        # Remove bullets that hit
         self.ship.bullets = [b for b in self.ship.bullets if b not in bullets_to_remove]
 
-        # 4️⃣ Remove asteroids that were destroyed
+        # Remove asteroids that were destroyed
         self.astroids = [a for a in self.astroids if a not in astroids_to_remove]
 
-        # 5️⃣ Add new explosions
+        # Add new explosions
         self.explosions.extend(explosions_to_add)
 
-        # 6️⃣ Update explosions
+        # Update explosions
         for explosion in self.explosions[:]:
             explosion.update(dt)
             if not explosion.alive:
                 self.explosions.remove(explosion)
 
-        # 7️⃣ Random asteroid spawning
+        # Random asteroid spawning
         current_time = pg.time.get_ticks()
         self.total_time += dt  # dt is in seconds
 
@@ -142,10 +143,9 @@ class Model:
             self.generate_astroid()
             self.last_astroid_spawn_time = current_time
 
-        # 8️⃣ Return -1 if game over
+        # Return -1 if game over
         if self.gameOver:
             return -1
-
 
     def menu_update(self, dt):
         current_time = pg.time.get_ticks()
@@ -181,3 +181,4 @@ class Model:
         distance_sq = dx*dx + dy*dy
         radius_sum = object1.radius + object2.radius
         return distance_sq <= radius_sum * radius_sum
+        

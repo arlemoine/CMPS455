@@ -1,9 +1,10 @@
 import math
 import pygame as pg
+
 import config
-from model.ship_type import ShipType
-from model.forcefield import Forcefield
 from model.bullet import Bullet
+from model.forcefield import Forcefield
+from model.ship_type import ShipType
 
 class Ship:
     '''Model for Asteroid ship.'''
@@ -51,16 +52,14 @@ class Ship:
         elif self.y < config.HARD_BOUNDARY_TOP:
             self.y = config.HARD_BOUNDARY_BOTTOM
 
-        # 💡 Update the forcefield position and animation
+        # Update the forcefield position and animation
         self.forcefield.recenter(self.x, self.y)
-        self.forcefield.update() # Call the update for the glow animation!
+        self.forcefield.update() # Call the update for the glow animation
 
         # Bullets
         for i in self.bullets:
             i.update(dt)
         self.bullets = [bullet for bullet in self.bullets if not bullet.expired]
-
-        # self.wrap_around_screen()
 
     def rotate(self, dt, direction):
         '''Rotate ship.'''
@@ -103,4 +102,3 @@ class Ship:
             
             # Reset the timer
             self.time_last_bullet = current_time
-

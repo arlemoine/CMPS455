@@ -1,4 +1,5 @@
 import pygame as pg
+
 from controller.controls import KEY_ACTIONS
 from controller.game_state import GameState
 import config
@@ -20,15 +21,10 @@ class Controller:
 
         self.last_menu_input_time = 0
 
-        # self.game_mode = None
-        # self.score = [0, 0]
-        # self.MAX_SCORE = 2
-
-        # --- SOUNDS ---
         self.sound_main_menu = pg.mixer.Sound('assets/main_menu.wav')
         self.sound_in_game = pg.mixer.Sound('assets/in_game.wav')
 
-        # 🎵 Create a dedicated channel for background music
+        # Create a dedicated channel for background music
         self.music_channel = pg.mixer.Channel(0)
         self.current_music = None
 
@@ -36,12 +32,12 @@ class Controller:
         """Handle all user input events."""
         current_time = pg.time.get_ticks()
 
-        # 1️⃣ Handle global events
+        # Handle global events
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 self.game_running = False
 
-        # 2️⃣ Handle continuous or mapped keys
+        # Handle continuous or mapped keys
         keys_pressed = pg.key.get_pressed()
         if self.state in KEY_ACTIONS:
             current_map = KEY_ACTIONS[self.state]
@@ -56,7 +52,6 @@ class Controller:
                     else:
                         # For PLAYING keys (movement, thrust, etc.)
                         action_fn(ship, model, self, dt)
-
 
     def toggle_pause(self):
         current_time = pg.time.get_ticks()
@@ -81,7 +76,6 @@ class Controller:
         elif self.state == GameState.MENU:
             self.model.menu_update(dt)
 
-
     def menu_up(self):
         """Move up one selection in the current active menu."""
         current_time = pg.time.get_ticks()
@@ -91,7 +85,6 @@ class Controller:
             if self.menu_choice_index < 0:
                 self.menu_choice_index = len(menu) - 1
             self.last_menu_input_time = current_time
-
 
     def menu_down(self):
         """Move down one selection in the current active menu."""
@@ -123,11 +116,9 @@ class Controller:
             self.active_menu = "main"
             self.menu_choice_index = 0
 
-            # ⚡ Fully reset the model (new ship, asteroids, explosions, etc.)
-            # Preserve ship type if you like, or reset it to default.
+            # Fully reset the model (new ship, asteroids, explosions, etc.)
             ship_type = getattr(self.model.ship, "ship_type", "default")
             self.model.__init__(ship_type)
-
 
     def toggle_gameover(self):
         """Switch to the game over screen."""
@@ -149,5 +140,4 @@ class Controller:
         elif self.state in (GameState.PLAYING, GameState.GAMEOVER):
             self.play_music(self.sound_in_game, "in_game")
         elif self.state == GameState.PAUSED:
-            # Optional: lower volume or pause music
             pass

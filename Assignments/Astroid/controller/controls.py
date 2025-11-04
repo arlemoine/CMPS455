@@ -1,5 +1,5 @@
 import pygame as pg
-from controller.game_state import GameState  # import enum from controller
+from controller.game_state import GameState  # Import enum from controller
 
 # Defines key maps per game state with lambdas
 # Each function takes (ship, model, controller, dt)

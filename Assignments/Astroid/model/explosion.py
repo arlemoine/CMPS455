@@ -14,9 +14,9 @@ class Explosion:
             (135, 45, 15), (120, 35, 10), (100, 25, 10), (80, 20, 10),
             (60, 15, 10), (40, 10, 5), (20, 5, 2), (0, 0, 0)
         ]
-        self.duration = config.EXPLOSION_DURATION  # seconds for full animation
+        self.duration = config.EXPLOSION_DURATION  # Seconds for full animation
         self.elapsed = 0.0
-        self.rings = [self.colors[0]] * self.num_rings  # start all bright
+        self.rings = [self.colors[0]] * self.num_rings  # Start all bright
         self.alive = True
 
     def update(self, dt):
@@ -43,4 +43,3 @@ class Explosion:
         # Explosion ends when outermost ring has fully transitioned
         if self.elapsed >= self.duration + ring_delay * (self.num_rings - 1):
             self.alive = False
-

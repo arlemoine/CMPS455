@@ -1,5 +1,6 @@
 import math
 import random
+
 import config
 
 class Astroid:
@@ -14,7 +15,7 @@ class Astroid:
 
         self.angle = 0
         self.rotation_speed = random.uniform(-1, 1) * config.ASTROID_ROTATION_SPEED # Randomize spin direction
-        self.vx = random.randrange(-11, 12, 2) # Speed will be controlled by a fractional config for rotation speed
+        self.vx = random.randrange(-11, 12, 2) # Speed controlled by a fractional config for rotation speed
         self.vy = random.randrange(-11, 12, 2)
 
     def calc_radius(self):
@@ -37,15 +38,12 @@ class Astroid:
             return True
 
     def bounce_off(self, other):
-        """
-        Elastic collision between self and other asteroid (assumes equal mass).
-        Updates both velocities correctly.
-        """
+        """Elastic collision between self and other asteroid."""
         dx = other.x - self.x
         dy = other.y - self.y
         distance = math.hypot(dx, dy)
         if distance == 0:
-            return  # avoid division by zero
+            return
 
         # Normal vector
         nx = dx / distance
@@ -61,7 +59,7 @@ class Astroid:
         v2n = other.vx * nx + other.vy * ny
         v2t = other.vx * tx + other.vy * ty
 
-        # Swap normal components (elastic collision, equal mass)
+        # Swap normal components
         v1n, v2n = v2n, v1n
 
         # Convert scalar normal/tangent velocities back to vectors
@@ -69,4 +67,3 @@ class Astroid:
         self.vy = v1n * ny + v1t * ty
         other.vx = v2n * nx + v2t * tx
         other.vy = v2n * ny + v2t * ty
-

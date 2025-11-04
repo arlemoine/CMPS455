@@ -11,14 +11,14 @@ class Forcefield:
         # Base Glow Effect Variables
         self.min_glow = 5
         self.max_glow = 10
-        self.glow_state = self.max_glow # Current value (used for alpha/color/thickness)
-        self.glow_direction = -1        # -1 for decreasing, 1 for increasing
-        self.base_glow_speed = 0.05      # Base speed, modified by health
+        self.glow_state = self.max_glow
+        self.glow_direction = -1 # -1 for decreasing, 1 for increasing
+        self.base_glow_speed = 0.05 # Base speed, modified by health
         
         # Damage Flash Variables
         self.flash_timer = 0
-        self.flash_duration = 5         # How many frames the flash lasts (adjust as needed)
-        self.flash_intensity = 15       # A very high glow value for the flash
+        self.flash_duration = 5 # How many frames the flash lasts (adjust as needed)
+        self.flash_intensity = 15 # A very high glow value for the flash
         
     def recenter(self, x, y):
         self.x = x
@@ -28,23 +28,18 @@ class Forcefield:
         if self.health > 0:
             self.health -= 1
             
-            # 💡 New: Trigger the damage flash!
+            # Trigger the damage flash
             self.flash_timer = self.flash_duration
             
             return True
         return False
 
     def update(self):
-        # 1. Low Health Glow Adjustment
         # The glow speed increases as health drops (pulse faster when damaged).
         health_ratio = self.health / self.max_health
-        
-        # For example: If health is 1/5, speed multiplier is 1 + (1 - 0.2) = 1.8.
-        # This makes the pulse much faster when near death.
         speed_multiplier = 1 + (1 - health_ratio) 
         current_glow_speed = self.base_glow_speed * speed_multiplier
         
-        # 2. Update Pulsing Glow
         if self.flash_timer <= 0:
             # Only pulse if not flashing
             if self.glow_state >= self.max_glow:
@@ -55,7 +50,6 @@ class Forcefield:
             self.glow_state += self.glow_direction * current_glow_speed 
             self.glow_state = max(self.min_glow, min(self.max_glow, self.glow_state))
             
-        # 3. Update Damage Flash
         if self.flash_timer > 0:
             # While flashing, force the glow state to a high intensity and count down.
             self.glow_state = self.flash_intensity 
