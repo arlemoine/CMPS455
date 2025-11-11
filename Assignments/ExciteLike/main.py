@@ -1,7 +1,7 @@
 import pygame as pg
 
 from controller.controller import Controller
-from objects.game import Game
+from models.game import Game
 from view.view import View
 
 import config

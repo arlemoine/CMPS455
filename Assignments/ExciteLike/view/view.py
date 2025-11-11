@@ -1,5 +1,5 @@
 import pygame as pg
-import config
+from .. import config
 
 class View:
     def __init__(self):

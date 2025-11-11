@@ -58,7 +58,7 @@ MAX_SPEED = 300
 
 # Map
 
-
+HEIGHT_CONSTANT = 100
 
 # Paths
 
