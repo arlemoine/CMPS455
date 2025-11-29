@@ -40,12 +40,12 @@ class PongView:
         """Draw the Pong main menu (dark background, light keys)."""
         self.screen.fill((0, 0, 0))  # Dark background
 
-        # --- Title ---
+        # Title 
         title_font = pg.font.SysFont("Arial", 64)
         title_text = title_font.render("PONG WITH GUNS", True, (255, 255, 255))
         self.screen.blit(title_text, (self.SCREEN_WIDTH // 2 - title_text.get_width() // 2, 100))
 
-        # --- Options ---
+        # Options 
         option_font = pg.font.SysFont("Arial", 36)
         y_start = 300
         spacing = 120
@@ -152,7 +152,6 @@ class PongView:
     def render(self, model, current_score, game_running):
         self.screen.fill(BLACK)
 
-        # Draw paddles
         for paddle in [model.paddle1, model.paddle2]:
             self.draw_paddle(paddle)
 

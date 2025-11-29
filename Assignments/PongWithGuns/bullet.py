@@ -18,7 +18,7 @@ class Bullet:
         self.MIN_X = bound_left + self.radius
         self.MAX_X = bound_right - self.radius
 
-        self.width = self.radius * 2 # Define for consistency, though not used in movement
+        self.width = self.radius * 2 
         self.MIN_X_REMOVE = bound_left - self.width  # Remove when slightly off-screen left
         self.MAX_X_REMOVE = bound_right + self.width # Remove when slightly off-screen right
         
@@ -40,20 +40,11 @@ class Bullet:
         if self.x < self.MIN_X_REMOVE or self.x > self.MAX_X_REMOVE:
             return False  # Bullet is off-screen, remove it
 
-        # Check if the bullet hits vertical boundaries (optional, but good practice)
-        # Note: If a paddle shoots a straight bullet, this isn't strictly necessary.
-        if self.y <= self.MIN_Y or self.y >= self.MAX_Y:
-                # If you want to remove bullets that hit the top/bottom:
-                # return False
-                # For now, we'll keep it simple and assume the shooter is centered.
-                pass
-
         self.update_hitbox()
         return True # Bullet is still on screen
 
     def update_hitbox(self):
         """Recalculate all four rectangular hitbox coordinates based on center (x, y) and radius."""
-        
         # X-Coordinates: Center +/- Radius +/- Buffer
         self.hitbox_x1 = self.x - self.radius - self.hitbox_buffer
         self.hitbox_x2 = self.x + self.radius + self.hitbox_buffer

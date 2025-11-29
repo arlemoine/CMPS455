@@ -12,9 +12,9 @@ view = PongView()
 model = PongModel(view.SCREEN_WIDTH, view.SCREEN_HEIGHT)
 controller = PongController(model, view)
 
-controller.game_mode = controller.select_mode()  # This pauses until the player chooses PvAI, PvP, or Quit
-if controller.game_mode == "quit":
-    view.quit()
+controller.game_mode = controller.select_mode()  # This pauses until the player chooses PvAI, PvP, or QUIT
+if controller.game_mode == "QUIT":
+    pg.quit()
     exit()
 
 clock = pg.time.Clock()

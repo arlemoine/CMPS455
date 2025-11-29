@@ -34,7 +34,7 @@ class PongController:
             
         keys = pg.key.get_pressed()
 
-        # --- Player 1 controls (existing) ---
+        # Player 1 controls (existing)
         if keys[pg.K_w]:
             self.model.paddle1.set_direction(-1)  # Move up
         elif keys[pg.K_s]:
@@ -45,7 +45,7 @@ class PongController:
         if keys[pg.K_SPACE]:
             self.model.fire_bullet(1, pg.time.get_ticks() / 1000.0)
 
-        # --- Player 2 controls (PvP mode) ---
+        # Player 2 controls (PvP mode)
         if self.game_mode == 'PvP':
             # Movement
             if keys[pg.K_UP]:
@@ -88,7 +88,7 @@ class PongController:
         selecting = True
         mode = None
         while selecting:
-            self.view.draw_start_menu()  # Show styled menu
+            self.view.draw_start_menu() 
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     selecting = False
