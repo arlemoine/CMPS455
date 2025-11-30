@@ -5,7 +5,8 @@
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 250, "h": 250 },
     "sourceSize": { "w": 250, "h": 250 },
-    "duration": 100
+    "duration": 100,
+    "action": "run"
    },
    "rogue_sprite_sheet 1.ase": {
     "frame": { "x": 250, "y": 0, "w": 250, "h": 250 },
@@ -13,7 +14,8 @@
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 250, "h": 250 },
     "sourceSize": { "w": 250, "h": 250 },
-    "duration": 100
+    "duration": 100,
+    "action": "run"
    },
    "rogue_sprite_sheet 2.ase": {
     "frame": { "x": 500, "y": 0, "w": 250, "h": 250 },
@@ -21,7 +23,8 @@
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 250, "h": 250 },
     "sourceSize": { "w": 250, "h": 250 },
-    "duration": 100
+    "duration": 100,
+    "action": "run"
    },
    "rogue_sprite_sheet 3.ase": {
     "frame": { "x": 750, "y": 0, "w": 250, "h": 250 },
@@ -29,7 +32,8 @@
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 250, "h": 250 },
     "sourceSize": { "w": 250, "h": 250 },
-    "duration": 100
+    "duration": 100,
+    "action": "run"
    },
    "rogue_sprite_sheet 4.ase": {
     "frame": { "x": 1000, "y": 0, "w": 250, "h": 250 },
@@ -37,7 +41,8 @@
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 250, "h": 250 },
     "sourceSize": { "w": 250, "h": 250 },
-    "duration": 100
+    "duration": 100,
+    "action": "run"
    },
    "rogue_sprite_sheet 5.ase": {
     "frame": { "x": 1250, "y": 0, "w": 250, "h": 250 },
@@ -45,7 +50,8 @@
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 250, "h": 250 },
     "sourceSize": { "w": 250, "h": 250 },
-    "duration": 100
+    "duration": 100,
+    "action": "run"
    },
    "rogue_sprite_sheet 6.ase": {
     "frame": { "x": 1500, "y": 0, "w": 250, "h": 250 },
@@ -53,7 +59,8 @@
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 250, "h": 250 },
     "sourceSize": { "w": 250, "h": 250 },
-    "duration": 100
+    "duration": 100,
+    "action": "jump"
    },
    "rogue_sprite_sheet 7.ase": {
     "frame": { "x": 1750, "y": 0, "w": 250, "h": 250 },
@@ -61,7 +68,8 @@
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 250, "h": 250 },
     "sourceSize": { "w": 250, "h": 250 },
-    "duration": 100
+    "duration": 100,
+    "action": "jump"
    },
    "rogue_sprite_sheet 8.ase": {
     "frame": { "x": 2000, "y": 0, "w": 250, "h": 250 },
@@ -69,7 +77,8 @@
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 250, "h": 250 },
     "sourceSize": { "w": 250, "h": 250 },
-    "duration": 100
+    "duration": 100,
+    "action": "jump"
    },
    "rogue_sprite_sheet 9.ase": {
     "frame": { "x": 2250, "y": 0, "w": 250, "h": 250 },
@@ -77,7 +86,8 @@
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 250, "h": 250 },
     "sourceSize": { "w": 250, "h": 250 },
-    "duration": 100
+    "duration": 100,
+    "action": "slide"
    }
  },
  "meta": {

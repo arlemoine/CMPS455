@@ -1,34 +1,23 @@
 import pygame as pg
-
-from controller.controller import Controller
-from models.game import Game
+from models.session import Session
 from view.view import View
-
+from controller.controller import Controller
 import config
 
 def main():
     pg.init()
-    pg.mixer.init()
-
-    # MVC
-    game = Game()
-    view = View()
-    controller = Controller(game, view)
 
     clock = pg.time.Clock()
+    view = View()
+    session = Session()
+    controller = Controller(session)
 
-    while controller.game_running:
-        dt = clock.tick(config.FPS) / 1000  # seconds
-        
-        # Input
-        controller.handle_input(dt)
-        
-        # Update
-        controller.update_game(dt)
-        # controller.update_music()
-        
-        # Render
-        view.render(controller)
+    dt = 0
+    while not session.game_over:
+        dt = clock.tick(config.FPS) / 1000
+        controller.handle_input()
+        session.update(dt)
+        view.render(session)
 
     pg.quit()
 

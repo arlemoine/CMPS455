@@ -36,24 +36,15 @@ HARD_BOUND_RIGHT = SOFT_BOUND_RIGHT + HARD_BOUND_PADDING
 BKGD_COLOR = BLACK
 
 # GUI
-
 HUD_HEIGHT = 100 # For score/info
 
-# Game Setup
-BASE_SPEED = 9
-GROUND_HEIGHT = 100
+# Environment
+GROUND_HEIGHT = 800
 
 # Menu 
-
 MENU_COOLDOWN_MS = 200
 
 # Motions
-BASE_GAS_POWER = 100
-BASE_ROTATION_SPEED = 175
-BASE_NITRO_POWER = 300
-BASE_BRAKE_POWER = 300
-BASE_BOUNCE = 100
-BASE_FRICTION = 100
 MAX_SPEED = 300
 
 # Map
@@ -64,6 +55,7 @@ HEIGHT_CONSTANT = 100
 
 DIR_BASE = Path(__file__).resolve().parent
 DIR_ASSETS = DIR_BASE / "assets"
+DIR_CHARACTER = DIR_ASSETS / "character"
 
 if __name__ == "__main__":
     # code that only runs when this file is executed directly

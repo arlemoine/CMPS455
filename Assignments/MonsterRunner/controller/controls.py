@@ -1,14 +1,13 @@
 import pygame as pg
 
 # Gameplay controls
-GAMEPLAY_KEYDOWN = {
+PLAYING_KEYDOWN = {
     pg.K_w: "jump",
     pg.K_SPACE: "jump",
     pg.K_s: "slide",
-    pg.K_LSHIFT: "dash",
 }
 
-GAMEPLAY_KEYUP = {
+PLAYING_KEYUP = {
     pg.K_s: "slide",
 }
 

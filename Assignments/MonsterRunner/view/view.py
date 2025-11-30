@@ -1,66 +1,32 @@
-# view.py
 import pygame as pg
-from pygame.math import Vector2 as vec
-import math
 import config
 
 class View:
     def __init__(self):
         self.screen = pg.display.set_mode((config.SCREEN_WIDTH, config.SCREEN_HEIGHT))
-        pg.display.set_caption("ExciteLike")
+        pg.display.set_caption("MonsterRunner")
         self.font = pg.font.Font(None, 50)
 
-    # ------------------------
-    # Draw a rotated box (OBB-style)
-    # ------------------------
-    def draw_box(self, box):
-        hw = box.width / 2
-        hh = box.height / 2
-        rad = math.radians(getattr(box, "angle", 0))
-        x_axis = vec(math.cos(rad), math.sin(rad))
-        y_axis = vec(-math.sin(rad), math.cos(rad))
-        pos = box.pos
+    def draw_ground(self, session):
+        for segment in session.ground.segment_list:
+            screen_pos = session.camera.apply(segment["pos"])
+            pg.draw.rect(self.screen, config.GREEN, (screen_pos.x, screen_pos.y, segment["width"], segment["height"]))
 
-        corners = [
-            pos + x_axis* hw + y_axis* hh,
-            pos + x_axis* hw - y_axis* hh,
-            pos - x_axis* hw - y_axis* hh,
-            pos - x_axis* hw + y_axis* hh
-        ]
+    def draw_player(self, session):
+        player = session.player
+        screen_pos = session.camera.apply(session.player.pos)
+        pg.draw.rect(self.screen, config.BLUE, (screen_pos.x, screen_pos.y, player.width, player.height))
 
-        points = [(c.x, c.y) for c in corners]
-        pg.draw.polygon(self.screen, box.color, points)
+    def draw_obstacles(self, session):
+        for obstacle in session.obstacles.obstacle_list:
+            screen_pos = session.camera.apply(obstacle["pos"])
+            pg.draw.rect(self.screen, config.RED, (screen_pos.x, screen_pos.y, obstacle["width"], obstacle["height"]))
 
-    # ------------------------
-    # Draw a ground segment (also supports rotation)
-    # ------------------------
-    def draw_ground_segment(self, ground):
-        hw = ground.width / 2
-        hh = ground.height / 2
-        rad = math.radians(getattr(ground, "angle", 0))
-        x_axis = vec(math.cos(rad), math.sin(rad))
-        y_axis = vec(-math.sin(rad), math.cos(rad))
-        pos = ground.pos
-
-        corners = [
-            pos + x_axis* hw + y_axis* hh,
-            pos + x_axis* hw - y_axis* hh,
-            pos - x_axis* hw - y_axis* hh,
-            pos - x_axis* hw + y_axis* hh
-        ]
-
-        points = [(c.x, c.y) for c in corners]
-        pg.draw.polygon(self.screen, getattr(ground, "color", (0,255,0)), points)
-
-    # ------------------------
-    # Render everything
-    # ------------------------
-    def render(self, controller):
+    def render(self, session):
         self.screen.fill(config.WHITE)
 
-        self.draw_ground_segment(controller.ground)
-
-        # Draw the player box
-        self.draw_box(controller.box)
+        self.draw_ground(session)
+        self.draw_player(session)
+        self.draw_obstacles(session)
 
         pg.display.flip()
