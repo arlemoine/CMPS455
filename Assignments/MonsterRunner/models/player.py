@@ -5,6 +5,7 @@ from enum import Enum
 
 GRAVITY = vec(0, 1000)
 DECELERATION = vec(0.8, 0)
+player_width, player_height = 100, 100
 
 class PlayerState(Enum):
     RUN = 0
@@ -13,7 +14,7 @@ class PlayerState(Enum):
 
 class Player:
     def __init__(self):
-        self.width, self.height = 100, 100
+        self.width, self.height = player_width, player_height
         self.state = PlayerState.RUN
         self.pos = vec(200, config.GROUND_HEIGHT - self.height)
         self.vel = vec(0, 0)
