@@ -8,9 +8,10 @@ from models.grid import get_cell_index
 
 GRAVITY = vec(0, 2000)
 JUMP_FORCE = vec(0, -1000)
-run_width, run_height = 60, 100
-slide_width, slide_height = 100, 40
-jump_width, jump_height = 60, 80
+run_width, run_height = config.CELL_SIZE * 1.2, config.CELL_SIZE * 2
+slide_width, slide_height = config.CELL_SIZE * 2, config.CELL_SIZE * 0.8
+jump_width, jump_height = config.CELL_SIZE * 1.2, config.CELL_SIZE * 1.6
+SLIDE_TIME = 800  # milliseconds
 
 class PlayerState(Enum):
     RUN = 0
@@ -28,7 +29,6 @@ class Player:
         self.acc = vec(0, 0)
         self.max_vel = vec(100, 0)
         self.on_ground = True
-        self.slide_time = 1500  # milliseconds
         self.time_since_slide = 0
         self.colliding = False
         self.dh = run_height - slide_height
@@ -75,7 +75,7 @@ class Player:
         # Update sliding
         if self.state == PlayerState.SLIDE:
             self.time_since_slide += dt * 1000  # convert dt to milliseconds
-            if self.time_since_slide >= self.slide_time:
+            if self.time_since_slide >= SLIDE_TIME:
                 self.run()
 
         # Perform collision checks with neighboring blocks

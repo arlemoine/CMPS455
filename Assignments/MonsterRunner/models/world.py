@@ -1,4 +1,5 @@
 from pygame.math import Vector2 as vec
+import random
 
 import config
 from models.grid import get_cell_index
@@ -121,8 +122,19 @@ class World:
 
         # Spawn a new obstacle if last one is far enough to the left
         if last_x < config.HARD_BOUND_RIGHT - self.distance_between_obstacles:
+            ground_y = self.ground_blocks[-1].pos.y
+
+            options = ["jump", "slide"]
+            choice = random.choice(options)
+
+            dy = 0
+            if choice == "jump":
+                dy = config.CELL_SIZE
+            elif choice == "slide":
+                dy = config.CELL_SIZE * 2
+
             obstacle_x = config.HARD_BOUND_RIGHT
-            obstacle_y = config.GROUND_HEIGHT - config.CELL_SIZE  # obstacle sits on ground
+            obstacle_y = ground_y - dy  # obstacle sits on ground
             self.gen_obstacle(obstacle_x, obstacle_y)
 
 class Block:

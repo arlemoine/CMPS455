@@ -34,18 +34,11 @@ class View:
         player = session.player
         pg.draw.rect(self.screen, config.BLUE, (player.pos.x, player.pos.y, player.width, player.height))
 
-    # Placeholder fxn
-    # def draw_obstacles(self, session):
-    #     for obstacle in session.obstacles.obstacle_list:
-    #         screen_pos = session.camera.apply(obstacle["pos"])
-    #         pg.draw.rect(self.screen, config.RED, (screen_pos.x, screen_pos.y, obstacle["width"], obstacle["height"]))
-
     def render(self, session):
         self.screen.fill(config.WHITE)
 
         self.draw_grid()
         self.draw_world_blocks(session)
         self.draw_player(session)
-        # self.draw_obstacles(session)
 
         pg.display.flip()
