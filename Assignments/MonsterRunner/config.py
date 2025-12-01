@@ -40,7 +40,7 @@ HUD_HEIGHT = 100 # For score/info
 
 # Environment
 GROUND_HEIGHT = 800
-CHUNK_WIDTH = 50
+SEGMENT_WIDTH = 50
 
 # Menu 
 MENU_COOLDOWN_MS = 200
