@@ -16,8 +16,9 @@ def main():
     while not session.game_over:
         dt = clock.tick(config.FPS) / 1000
         controller.handle_input()
-        session.update(dt)
-        view.render(session)
+        if controller.mode == "playing" and not session.paused:
+            session.update(dt)
+        view.render(controller, session)
 
     pg.quit()
 

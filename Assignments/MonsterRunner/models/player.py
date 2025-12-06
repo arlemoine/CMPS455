@@ -88,7 +88,7 @@ class Player:
 
         # Update sliding
         if self.state == PlayerState.SLIDE:
-            self.distance_since_slide += dt * world.scroll_speed.x
+            self.distance_since_slide += dt * world.scroll_speed.x * -1
             if self.distance_since_slide >= self.slide_distance:
                 self.run()
 

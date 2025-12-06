@@ -12,9 +12,9 @@ class ScoreTracker:
         self._load_high_score()
 
     def update(self, dt, world_speed):
-        distance_gained = world_speed.x * dt
+        distance_gained = world_speed.x * dt * -1
         self.distance += distance_gained
-        self.score += distance_gained
+        self.score += distance_gained * 0.1
 
     def reset(self):
         self.score = 0

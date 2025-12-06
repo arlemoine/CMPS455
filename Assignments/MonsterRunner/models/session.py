@@ -14,6 +14,7 @@ class Session:
         self.score_tracker = ScoreTracker()
         self.game_over = False
         self.score = 0
+        self.paused = False
 
     def update(self, dt):
         # Update world
@@ -24,7 +25,7 @@ class Session:
         caught = self.monster.update(dt, self.player)
 
         if caught:
-            self.score.finalize_run()
+            self.score_tracker.finalize_run()
             self.game_over = True
 
         self.score_tracker.update(dt, self.world.scroll_speed)
