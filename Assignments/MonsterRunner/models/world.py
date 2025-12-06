@@ -4,9 +4,6 @@ import random
 import config
 from models.grid import get_cell_index
 
-normal_speed = vec(-300, 0)
-slow_speed = vec(-100, 0)
-
 class World:
     def __init__(self):
         self.blocks = [] # Holds all blocks
@@ -22,9 +19,9 @@ class World:
 
     def update(self, dt, player):
         if player.colliding:
-            self.scroll_speed = slow_speed
+            self.scroll_speed = config.SPEED_SLOW
         else:
-            self.scroll_speed = normal_speed
+            self.scroll_speed = config.SPEED_NORM
 
         delete_queue = []
         for block in self.blocks:

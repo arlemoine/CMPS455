@@ -1,4 +1,5 @@
 from pathlib import Path
+from pygame.math import Vector2 as vec
 
 # Colors
 BLACK = (0, 0, 0)
@@ -46,10 +47,13 @@ GROUND_HEIGHT = CELL_SIZE * 8
 MENU_COOLDOWN_MS = 200
 
 # Motions
-MAX_SPEED = 300
+SPEED_NORM = vec(-300, 0)
+SPEED_SLOW = vec(-100, 0)
+MONSTER_SPEED_DEBUFF = 0.5
+PLAYER_OFFSET = vec(0, 0)
+SLIDE_DISTANCE = 100
 
 # Map
-
 HEIGHT_CONSTANT = 100
 
 # Paths

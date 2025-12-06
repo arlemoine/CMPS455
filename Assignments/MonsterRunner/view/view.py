@@ -34,11 +34,17 @@ class View:
         player = session.player
         pg.draw.rect(self.screen, config.BLUE, (player.pos.x, player.pos.y, player.width, player.height))
 
+    def draw_monster(self, session):
+        monster = session.monster
+        if monster.active:
+            pg.draw.rect(self.screen, config.ORANGE, (monster.pos.x, monster.pos.y, monster.width, monster.height))
+
     def render(self, session):
         self.screen.fill(config.WHITE)
 
         self.draw_grid()
         self.draw_world_blocks(session)
         self.draw_player(session)
+        self.draw_monster(session)
 
         pg.display.flip()

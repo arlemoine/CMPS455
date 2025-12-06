@@ -11,7 +11,7 @@ JUMP_FORCE = vec(0, -1000)
 run_width, run_height = config.CELL_SIZE * 1.2, config.CELL_SIZE * 2
 slide_width, slide_height = config.CELL_SIZE * 2, config.CELL_SIZE * 0.8
 jump_width, jump_height = config.CELL_SIZE * 1.2, config.CELL_SIZE * 1.6
-SLIDE_TIME = 800  # milliseconds
+SCREEN_CENTER = vec(config.SCREEN_WIDTH / 2, config.SCREEN_WIDTH / 2)
 
 class PlayerState(Enum):
     RUN = 0
@@ -22,11 +22,12 @@ class Player:
     def __init__(self):
         self.width, self.height = run_width, run_height
         self.state = PlayerState.RUN
-        self.pos = vec(200, config.GROUND_HEIGHT - self.height)
+        self.pos = vec(SCREEN_CENTER.x + config.PLAYER_OFFSET.x, SCREEN_CENTER.y + config.PLAYER_OFFSET.y)
         self.grid_x, self.grid_y = None, None
         self.update_grid_pos()
         self.vel = vec(0, 0)
         self.acc = vec(0, 0)
+        self.slide_time = config.SLIDE_DISTANCE / self.vel.x
         self.max_vel = vec(100, 0)
         self.on_ground = True
         self.time_since_slide = 0
@@ -75,7 +76,7 @@ class Player:
         # Update sliding
         if self.state == PlayerState.SLIDE:
             self.time_since_slide += dt * 1000  # convert dt to milliseconds
-            if self.time_since_slide >= SLIDE_TIME:
+            if self.time_since_slide >= self.slide_time:
                 self.run()
 
         # Perform collision checks with neighboring blocks
