@@ -20,33 +20,46 @@ class PlayerState(Enum):
 
 class Player:
     def __init__(self):
+        # General
         self.width, self.height = run_width, run_height
         self.state = PlayerState.RUN
+        self.dh = run_height - slide_height
+
+        # Player physics
         self.pos = vec(SCREEN_CENTER.x + config.PLAYER_OFFSET.x, SCREEN_CENTER.y + config.PLAYER_OFFSET.y)
-        self.grid_x, self.grid_y = None, None
-        self.update_grid_pos()
         self.vel = vec(0, 0)
         self.acc = vec(0, 0)
-        self.slide_time = config.SLIDE_DISTANCE / self.vel.x
         self.max_vel = vec(100, 0)
+
+        # Player-to-grid
+        self.grid_x, self.grid_y = None, None
+        self.update_grid_pos()
+
+        # Environment interactions
         self.on_ground = True
-        self.time_since_slide = 0
         self.colliding = False
-        self.dh = run_height - slide_height
+
+        # Sliding
+        self.slide_distance = config.SLIDE_DISTANCE
+        self.distance_since_slide = 0
 
     def jump(self):
         if self.on_ground:
+            self.on_ground = False
+
+            # Reposition player for jump
             self.state = PlayerState.JUMP
             self.width, self.height = jump_width, jump_height
-            self.on_ground = False
             self.vel.y = JUMP_FORCE.y
 
     def slide(self):
         if self.on_ground and self.state != PlayerState.SLIDE:
             self.state = PlayerState.SLIDE
+            self.distance_since_slide = 0
+
+            # Reposition player for slide
             self.width, self.height = slide_width, slide_height
             self.pos.y += self.dh  # lower player
-            self.time_since_slide = 0  # reset timer
 
     def run(self):
         """Return to running state"""
@@ -75,8 +88,8 @@ class Player:
 
         # Update sliding
         if self.state == PlayerState.SLIDE:
-            self.time_since_slide += dt * 1000  # convert dt to milliseconds
-            if self.time_since_slide >= self.slide_time:
+            self.distance_since_slide += dt * world.scroll_speed.x
+            if self.distance_since_slide >= self.slide_distance:
                 self.run()
 
         # Perform collision checks with neighboring blocks
