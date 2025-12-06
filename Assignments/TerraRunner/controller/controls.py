@@ -2,9 +2,9 @@ import pygame as pg
 
 # Gameplay controls
 PLAYING_KEYDOWN = {
-    pg.K_w: "jump",
+    pg.K_UP: "jump",
     pg.K_SPACE: "pause_toggle",
-    pg.K_s: "slide",
+    pg.K_DOWN: "slide",
 }
 
 PLAYING_KEYUP = {

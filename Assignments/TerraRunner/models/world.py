@@ -9,9 +9,19 @@ class World:
         self.blocks = [] # Holds all blocks
         self.ground_blocks = [] # Holds ground blocks only
         self.obstacle_blocks = [] # Holds obstacle blocks only
-        self.scroll_speed = vec(-300, 0)
+        self.scroll_speed = vec(-400, 0)
         self.grid_cells = {}  # key: (grid_x, grid_y), value: list of blocks
-        self.distance_between_obstacles = 500
+        self.distance_between_obstacles = 2000
+
+        # Graphics
+        self.graphics = {
+            "ground": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+            "obstacle": [0, 1, 2], # We ignore this obstacle part for now
+        }
+        self.next_graphic = {
+            "ground": 0, 
+            "obstacle": random.choice(self.graphics["obstacle"]),
+        }
 
         # Generate ground initially
         self.gen_ground(0, config.GROUND_HEIGHT)
@@ -79,14 +89,18 @@ class World:
         return block
 
     def gen_ground(self, x, y):
-        new_block = Block("ground", x, y)
+        next_index = self.next_graphic["ground"]
+        self.next_graphic["ground"] = (self.next_graphic["ground"] + 1) % len(self.graphics["ground"])
+        new_block = Block("ground", next_index, x, y)
         self.blocks.append(new_block)
         self.ground_blocks.append(new_block)
         self.add_to_cell(new_block)
         return new_block
 
     def gen_obstacle(self, x, y):
-        new_block = Block("obstacle", x, y)
+        next_index = self.next_graphic["obstacle"]
+        self.next_graphic["obstacle"] = random.choice(self.graphics["obstacle"])
+        new_block = Block("obstacle", next_index, x, y)
         self.blocks.append(new_block)
         self.obstacle_blocks.append(new_block)
         self.add_to_cell(new_block)
@@ -135,12 +149,13 @@ class World:
             self.gen_obstacle(obstacle_x, obstacle_y)
 
 class Block:
-    def __init__(self, block_type, x, y):
+    def __init__(self, block_type, block_type_index, x, y):
         self.width = self.height = config.CELL_SIZE
         self.pos = vec(x, y)
         self.grid_x, self.grid_y = None, None
         self.update_grid_pos()
         self.block_type = block_type
+        self.block_type_index = block_type_index
 
     def update_grid_pos(self):
         self.grid_x, self.grid_y = get_cell_index(self.pos.x, self.pos.y)

@@ -8,14 +8,20 @@ class Controller:
     def __init__(self, session):
         self.session = session
         self.mode = "menu"
+        self.quit_game = False
 
         # Main menu info
         self.main_menu_options = ["PLAY", "WARDROBE", "QUIT"]
         self.main_menu_hover = "PLAY"
 
+        # Game Over menu info
+        self.game_over_options = ["PLAY", "MAIN MENU", "QUIT"]
+        self.game_over_hover = "PLAY"
+
         self.configs = {
             "playing": (controls.PLAYING_KEYDOWN, controls.PLAYING_KEYUP),
             "menu": (controls.MENU_KEYDOWN, controls.MENU_KEYUP),
+            "game_over": (controls.MENU_KEYDOWN, controls.MENU_KEYUP),
         }
 
     def set_mode(self, mode):
@@ -27,7 +33,7 @@ class Controller:
 
         for event in pg.event.get():
             if event.type == pg.QUIT:
-                self.session.game_over = True
+                self.quit_game = True
 
             if event.type == pg.KEYDOWN:
                 action = keydown_map.get(event.key)
@@ -54,9 +60,13 @@ class Controller:
                 self.main_menu_hover = self.menu_up(self.main_menu_hover, self.main_menu_options)
             elif action == "menu_select":
                 self.select_main_menu_option()
-            # elif action == "menu_back":
-            #     self.handle_menu_back()
-
+        elif self.mode == "game_over":
+            if action == "menu_down":
+                self.game_over_hover = self.menu_down(self.game_over_hover, self.game_over_options)
+            elif action == "menu_up":
+                self.game_over_hover = self.menu_up(self.game_over_hover, self.game_over_options)
+            elif action == "menu_select":
+                self.select_game_over_option()
 
     def menu_down(self, hovered_item, item_list):
         # Find index of current hovered item
@@ -80,6 +90,17 @@ class Controller:
         if self.main_menu_hover == "PLAY":
             self.set_mode("playing")
         elif self.main_menu_hover == "QUIT":
-            self.session.game_over = True
+            self.quit_game = True
         # elif self.main_menu_hover == "WARDROBE":
         #     self.open_wardrobe_screen()
+
+    def select_game_over_option(self):
+        if self.game_over_hover == "PLAY":
+            # Start a new game
+            self.restart = True
+            self.session = Session()  # re-instantiate session
+            self.set_mode("playing")
+        elif self.game_over_hover == "MAIN MENU":
+            self.set_mode("menu")
+        elif self.game_over_hover == "QUIT":
+            self.quit_game = True

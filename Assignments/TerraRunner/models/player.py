@@ -39,6 +39,11 @@ class Player:
         self.on_ground = True
         self.colliding = False
 
+        # Running (visual frame flipping)
+        self.run_frame = 0
+        self.distance_since_run_flip = 0
+        self.flip_distance = 75
+
         # Sliding
         self.slide_distance = config.SLIDE_DISTANCE
         self.distance_since_slide = 0
@@ -86,6 +91,14 @@ class Player:
         player_in_bounds = self.update_grid_pos()
         neighboring_blocks = world.get_nearby_blocks(self.grid_x, self.grid_y, 2)
 
+        # Update run animation flipping
+        if self.state == PlayerState.RUN:
+            self.distance_since_run_flip += world.scroll_speed.x * dt * -1
+
+            if self.distance_since_run_flip >= self.flip_distance:
+                self.distance_since_run_flip = 0
+                self.run_frame = 1 - self.run_frame
+
         # Update sliding
         if self.state == PlayerState.SLIDE:
             self.distance_since_slide += dt * world.scroll_speed.x * -1
@@ -112,6 +125,8 @@ class Player:
             self.on_ground = True
             self.pos.y = block.pos.y - self.height
             self.vel.y = 0
+            if self.state == PlayerState.JUMP:
+                self.run()
 
         if block.block_type == "obstacle":
             self.colliding = True

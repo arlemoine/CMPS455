@@ -1,13 +1,72 @@
 import pygame as pg
 
 import config
+from view.helper import load_sprite
 import models.grid as grid
+import models.player
 
 class View:
-    def __init__(self):
+    def __init__(self, session):
         self.screen = pg.display.set_mode((config.SCREEN_WIDTH, config.SCREEN_HEIGHT))
-        pg.display.set_caption("MonsterRunner")
+        pg.display.set_caption("TerraRunner")
         self.font = pg.font.Font(None, 50)
+
+        self.character = {
+            "run1": load_sprite("assets/character/run1.png", models.player.run_width, models.player.run_height),
+            "run2": load_sprite("assets/character/run2.png", models.player.run_width, models.player.run_height),
+            "jump": load_sprite("assets/character/jump.png", models.player.jump_width, models.player.jump_height),
+            "slide": load_sprite("assets/character/slide.png", models.player.slide_width, models.player.slide_height),
+        }
+        
+        self.monster = {
+            0: load_sprite("assets/monster/0.png", session.monster.width, session.monster.height),
+            1: load_sprite("assets/monster/1.png", session.monster.width, session.monster.height),
+        }
+
+        self.ground = []
+        for i in range(len(session.world.graphics["ground"])):
+            sprite = load_sprite(f"assets/blocks/ground_{i}.png", config.CELL_SIZE, config.CELL_SIZE)
+            self.ground.append(sprite)
+
+        self.obstacle = []
+        for i in range(len(session.world.graphics["obstacle"])):
+            sprite = load_sprite(f"assets/blocks/obstacle_{i}.png", config.CELL_SIZE, config.CELL_SIZE)
+            self.obstacle.append(sprite)
+
+        self.bg_forest = load_sprite("assets/background/forest.png", config.SCREEN_WIDTH, config.SCREEN_HEIGHT)
+        self.bg_x = 0  # current x offset
+        self.bg_scroll_speed = config.BKGD_SCROLL_SPEED  # slower than foreground, e.g., 100 px/sec
+
+    def draw_background(self, session, dt):
+        """
+        Draws the scrolling forest background, repeating seamlessly.
+        """
+        if not session.paused:
+            # Move the background left
+            self.bg_x -= self.bg_scroll_speed * dt
+
+            # Wrap around when the image scrolls off-screen
+            if self.bg_x <= -config.SCREEN_WIDTH:
+                self.bg_x += config.SCREEN_WIDTH
+
+        # Draw two copies to fill the screen
+        self.screen.blit(self.bg_forest, (self.bg_x, 0))
+        self.screen.blit(self.bg_forest, (self.bg_x + config.SCREEN_WIDTH, 0))
+
+    def get_char_sprite(self, player):
+        if player.state == models.player.PlayerState.RUN:
+            return self.character["run1"] if player.run_frame == 0 else self.character["run2"]
+
+        if player.state == models.player.PlayerState.JUMP:
+            return self.character["jump"]
+
+        if player.state == models.player.PlayerState.SLIDE:
+            return self.character["slide"]
+
+        return self.character["run1"]   # fallback
+
+    def get_mon_sprite(self, monster):
+        return self.monster[0] if monster.run_frame == 0 else self.monster[1]
 
     def draw_grid(self):
         """
@@ -23,21 +82,45 @@ class View:
         world = session.world
 
         for block in world.blocks:
-
-            if block.block_type == "ground": block_color = config.GREEN
-            elif block.block_type == "obstacle": block_color = config.RED
-            else: block_color = config.BLACK
-
-            pg.draw.rect(self.screen, block_color, (block.pos.x, block.pos.y, block.width, block.height))
+            if block.block_type == "ground":
+                # Use sprite based on block_type_index
+                sprite = self.ground[block.block_type_index]
+                self.screen.blit(sprite, (block.pos.x, block.pos.y))
+            elif block.block_type == "obstacle":
+                sprite = self.obstacle[block.block_type_index]
+                self.screen.blit(sprite, (block.pos.x, block.pos.y))
+            else:
+                pg.draw.rect(self.screen, config.BLACK, (block.pos.x, block.pos.y, block.width, block.height))
 
     def draw_player(self, session):
         player = session.player
-        pg.draw.rect(self.screen, config.BLUE, (player.pos.x, player.pos.y, player.width, player.height))
+        sprite = self.get_char_sprite(player)
+        self.screen.blit(sprite, (player.pos.x, player.pos.y))
 
     def draw_monster(self, session):
         monster = session.monster
+        sprite = self.get_mon_sprite(monster)
         if monster.active:
-            pg.draw.rect(self.screen, config.ORANGE, (monster.pos.x, monster.pos.y, monster.width, monster.height))
+            self.screen.blit(sprite, (monster.pos.x, monster.pos.y))
+
+    def spawn_message(self, monster):
+        """
+        Render the monster's spawn message on the screen with fading effect.
+        """
+        msg = monster.spawn_msg
+        if not msg["active"]:
+            return
+
+        # Create text surface with red color
+        font = pg.font.Font(None, 50)
+        text_surf = font.render(msg["text"], True, (255, 0, 0))
+
+        # Apply alpha (transparency)
+        text_surf.set_alpha(msg["alpha"])
+
+        # Center message horizontally, slightly above middle of screen
+        rect = text_surf.get_rect(center=(config.SCREEN_WIDTH // 2, config.SCREEN_HEIGHT // 3))
+        self.screen.blit(text_surf, rect)
 
     def draw_score(self, session):
         """
@@ -112,11 +195,46 @@ class View:
     def render_menu(self, controller):
         self.draw_main_menu(controller)
 
-    def render_playing(self, session):
+    def draw_game_over_screen(self, controller, score):
+        """
+        Draws the Game Over screen as a transparent overlay over the last frame.
+        """
+        # Semi-transparent overlay
+        overlay = pg.Surface((config.SCREEN_WIDTH, config.SCREEN_HEIGHT))
+        overlay.set_alpha(180)  # adjust transparency
+        overlay.fill(config.DARK_GREY)
+        self.screen.blit(overlay, (0, 0))
+
+        # --- Game Over title ---
+        font = pg.font.Font(None, 120)
+        title_surf = font.render("GAME OVER", True, config.RED)
+        title_rect = title_surf.get_rect(center=(config.SCREEN_WIDTH // 2, 150))
+        self.screen.blit(title_surf, title_rect)
+
+        # --- Final score ---
+        score_font = pg.font.Font(None, 60)
+        score_surf = score_font.render(f"Score: {int(score)}", True, config.WHITE)
+        score_rect = score_surf.get_rect(center=(config.SCREEN_WIDTH // 2, 250))
+        self.screen.blit(score_surf, score_rect)
+
+        # --- Buttons ---
+        game_over_options = ["PLAY", "MAIN MENU", "QUIT"]
+        button_spacing = 120
+        start_y = 400
+        for i, option in enumerate(game_over_options):
+            highlighted = (option == controller.game_over_hover)
+            center_pos = (config.SCREEN_WIDTH // 2, start_y + i * button_spacing)
+            self.draw_button(option, center_pos, highlighted=highlighted)
+
+    def render_playing(self, controller, session, dt):
+        self.draw_background(session, dt)
         self.draw_world_blocks(session)
         self.draw_player(session)
         self.draw_monster(session)
         self.draw_score(session)
+
+        # Draw monster spawn message
+        self.spawn_message(session.monster)
 
         if session.paused:
             # Overlay semi-transparent layer to simulate blur
@@ -131,13 +249,16 @@ class View:
             text_rect = text_surf.get_rect(center=(config.SCREEN_WIDTH // 2, config.SCREEN_HEIGHT // 2))
             self.screen.blit(text_surf, text_rect)
 
-    def render(self, controller, session):
+        if controller.mode == "game_over":
+            self.draw_game_over_screen(controller, session.score_tracker.score)
+
+    def render(self, controller, session, dt):
         self.screen.fill(config.WHITE)
         self.draw_grid()
 
         if controller.mode == "menu":
             self.render_menu(controller)
-        elif controller.mode == "playing":
-            self.render_playing(session)
+        elif controller.mode == "playing" or controller.mode == "game_over":
+            self.render_playing(controller, session, dt)
 
         pg.display.flip()
