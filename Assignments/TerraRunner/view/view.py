@@ -35,7 +35,7 @@ class View:
 
         self.bg_forest = load_sprite("assets/background/forest.png", config.SCREEN_WIDTH, config.SCREEN_HEIGHT)
         self.bg_x = 0  # current x offset
-        self.bg_scroll_speed = config.BKGD_SCROLL_SPEED  # slower than foreground, e.g., 100 px/sec
+        self.bg_scroll_speed = config.BKGD_SCROLL_SPEED  # slower than foreground
 
     def draw_background(self, session, dt):
         """
@@ -140,12 +140,6 @@ class View:
     def draw_button(self, text, center_pos, width=300, height=80, highlighted=False):
         """
         Draws a single squircle-style button with text.
-        
-        :param text: str, text to render on button
-        :param center_pos: tuple, (x, y) center of button
-        :param width: int, button width
-        :param height: int, button height
-        :param highlighted: bool, if True, use highlight color
         """
         # Colors
         base_color = config.DARK_GREY
@@ -169,11 +163,7 @@ class View:
     def draw_main_menu(self, controller):
         """
         Draw the main menu screen.
-
-        :param controller: Controller instance to access hover state and options
         """
-        # # Clear screen
-        # self.screen.fill(config.BKGD_COLOR)
 
         # --- Draw Game Title as Image ---
         title_img = pg.image.load(str(config.DIR_ASSETS / "main" / "title_graphic.png")).convert_alpha()
@@ -205,19 +195,19 @@ class View:
         overlay.fill(config.DARK_GREY)
         self.screen.blit(overlay, (0, 0))
 
-        # --- Game Over title ---
+        # Game Over title 
         font = pg.font.Font(None, 120)
         title_surf = font.render("GAME OVER", True, config.RED)
         title_rect = title_surf.get_rect(center=(config.SCREEN_WIDTH // 2, 150))
         self.screen.blit(title_surf, title_rect)
 
-        # --- Final score ---
+        # Final score 
         score_font = pg.font.Font(None, 60)
         score_surf = score_font.render(f"Score: {int(score)}", True, config.WHITE)
         score_rect = score_surf.get_rect(center=(config.SCREEN_WIDTH // 2, 250))
         self.screen.blit(score_surf, score_rect)
 
-        # --- Buttons ---
+        # Buttons 
         game_over_options = ["PLAY", "MAIN MENU", "QUIT"]
         button_spacing = 120
         start_y = 400

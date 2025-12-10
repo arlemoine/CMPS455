@@ -16,7 +16,7 @@ class World:
         # Graphics
         self.graphics = {
             "ground": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-            "obstacle": [0, 1, 2], # We ignore this obstacle part for now
+            "obstacle": [0, 1, 2], 
         }
         self.next_graphic = {
             "ground": 0, 

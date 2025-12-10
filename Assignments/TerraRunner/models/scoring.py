@@ -20,9 +20,7 @@ class ScoreTracker:
         self.score = 0
         self.distance = 0.0
 
-    # --------------------------
     # High Score Logic
-    # --------------------------
     def _load_high_score(self):
         if os.path.exists(self.save_path):
             try:
@@ -41,7 +39,7 @@ class ScoreTracker:
 
     def finalize_run(self):
         """
-        Call this when the run ends (player death / caught / restart).
+        Called when the run ends (player death / caught / restart).
         Saves high score if needed.
         """
         if self.score > self.high_score:

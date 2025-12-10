@@ -1,13 +1,7 @@
 from pygame.math import Vector2 as vec
 
 def aabb(a, b):
-    """Axis-Aligned Bounding Box collision check between two game objects.
-
-    Both objects must have:
-        - pos : Vector2
-        - width : int/float
-        - height : int/float
-    """
+    """Axis-Aligned Bounding Box collision check between two game objects."""
 
     if a.pos.x + a.width  < b.pos.x: return False  # a is left of b
     if a.pos.x > b.pos.x + b.width: return False  # a is right of b
