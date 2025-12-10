@@ -4,11 +4,15 @@ import controller.controls as controls
 from models.session import Session
 from view.view import View
 
+path_mus_main = "assets/music/main_menu.mp3"
+path_mus_play = "assets/music/in_game.mp3"
+
 class Controller:
     def __init__(self, session):
         self.session = session
-        self.mode = "menu"
+        self.mode = None
         self.quit_game = False
+        pg.mixer.init()
 
         # Main menu info
         self.main_menu_options = ["PLAY", "WARDROBE", "QUIT"]
@@ -24,9 +28,20 @@ class Controller:
             "game_over": (controls.MENU_KEYDOWN, controls.MENU_KEYUP),
         }
 
+        self.set_mode("menu")
+
+    def play_music(self, path: str):
+        pg.mixer.music.load(path)
+        pg.mixer.music.set_volume(0.5)
+        pg.mixer.music.play(-1)
+
     def set_mode(self, mode):
         if mode in self.configs:
             self.mode = mode
+            if mode == "playing" or mode == "game_over":
+                self.play_music(path_mus_play)
+            elif mode == "menu":
+                self.play_music(path_mus_main)
 
     def handle_input(self):
         keydown_map, keyup_map = self.configs[self.mode]
